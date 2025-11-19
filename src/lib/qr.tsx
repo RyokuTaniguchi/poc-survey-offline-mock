@@ -59,11 +59,13 @@ export const QRScanner = forwardRef<QRScannerHandle, QRScannerProps>(({ onResult
   useImperativeHandle(ref, () => ({ start, stop }), [start, stop]);
 
   return (
-    <div className="qr-container">
+    <div className="qr-container" style={{ display: running ? "block" : "none" }}>
       <video ref={videoRef} className="qr-video" muted playsInline />
-      <div className="helper-text" style={{ marginTop: 8 }}>
-        {running ? "読み取り中です..." : "QR撮影ボタンを押すとカメラが起動します"}
-      </div>
+      {running && (
+        <div className="helper-text" style={{ marginTop: 8 }}>
+          読み取り中です...
+        </div>
+      )}
     </div>
   );
 });
