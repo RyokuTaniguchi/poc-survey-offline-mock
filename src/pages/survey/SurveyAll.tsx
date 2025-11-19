@@ -817,38 +817,6 @@ export default function SurveyAllPage() {
 
   return (
     <div className="page">
-      {/* 部署サマリ（入力は部署画面のみ） */}
-      <div className="page-section">
-        <h2 className="section-title">部署</h2>
-        <div className="grid">
-          <label>
-            調査日
-            <input value={current?.fields?.surveyDate ?? surveyDate} disabled />
-          </label>
-          <label>
-            調査担当
-            <input value={current?.fields?.investigator ?? investigator} disabled />
-          </label>
-          <label>
-            棟
-            <input value={buildingQuery} disabled />
-          </label>
-          <label>
-            階
-            <input value={floorQuery} disabled />
-          </label>
-          <label>
-            部署
-            <input value={departmentQuery} disabled />
-          </label>
-          <label>
-            部門
-            <input value={divisionQuery} disabled />
-          </label>
-        </div>
-        <p className="helper-text">部署を変更する場合は「部門」ボタンから部署入力画面に戻って編集してください。</p>
-      </div>
-
       {/* QR・ラベルNo */}
       <div className="page-section">
         <h2 className="section-title">QRコード読取・ラベルNo確認</h2>
