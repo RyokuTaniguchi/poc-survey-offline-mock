@@ -71,7 +71,6 @@ export default function OcrCaptureDialog({ open, targetLabel, onClose, onResult,
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>();
   const cropCanvasRef = useRef<HTMLCanvasElement>();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<OcrStatus>("idle");
   const [message, setMessage] = useState<string>("カメラを初期化しています…");
   const [actionDisabled, setActionDisabled] = useState(false);
@@ -230,46 +229,6 @@ export default function OcrCaptureDialog({ open, targetLabel, onClose, onResult,
     });
   };
 
-  const handleUploadImage = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    setActionDisabled(true);
-    setMessage("画像を処理しています…");
-    try {
-      let blob: Blob;
-      if (typeof createImageBitmap === "function") {
-        const bitmap = await createImageBitmap(file);
-        blob = await captureRegionFromSource(bitmap.width, bitmap.height, (ctx) => {
-          ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-        });
-        bitmap.close();
-      } else {
-        const image = await loadImageElement(file);
-        const width = image.naturalWidth || image.width;
-        const height = image.naturalHeight || image.height;
-        blob = await captureRegionFromSource(width, height, (ctx) => {
-          ctx.drawImage(image, 0, 0, width, height);
-        });
-      }
-      stopStream();
-      resetPhoto();
-      const url = URL.createObjectURL(blob);
-      setPhotoBlob(blob);
-      setPhotoUrl(url);
-      setStatus("photo");
-      setMessage("写真を保存しました。読み取りボタンを押してください。");
-    } catch (err) {
-      const text = err instanceof Error ? err.message : String(err);
-      setStatus("error");
-      setMessage(`画像の処理に失敗しました: ${text}`);
-    } finally {
-      setActionDisabled(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
   const handleProcessPhoto = async () => {
     if (!photoBlob || actionDisabled) return;
     setStatus("processing");
@@ -321,13 +280,6 @@ export default function OcrCaptureDialog({ open, targetLabel, onClose, onResult,
           <button type="button" className="ghost" onClick={onClose}>閉じる</button>
         </header>
         <div className="ocr-video-container">
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={(e) => handleUploadImage(e.target.files)}
-          />
           {photoUrl ? (
             <img src={photoUrl} alt="撮影した画像" className="ocr-preview" />
           ) : (
@@ -343,15 +295,12 @@ export default function OcrCaptureDialog({ open, targetLabel, onClose, onResult,
         <p className={`ocr-message ${status === "error" ? "is-error" : ""}`}>{message}</p>
         <footer className="ocr-footer">
           <button type="button" className="ghost" onClick={onClose} disabled={actionDisabled && status === "processing"}>キャンセル</button>
-          <button type="button" className="ghost" onClick={() => fileInputRef.current?.click()} disabled={actionDisabled}>
-            画像をアップロード
-          </button>
           {photoBlob && (
             <button type="button" className="ghost" onClick={handleRetake} disabled={actionDisabled}>撮り直し</button>
           )}
           {!photoBlob && (
             <button type="button" onClick={handleCapture} className="secondary" disabled={actionDisabled || status !== "camera"}>
-              撮影する
+              撮影
             </button>
           )}
           {photoBlob && (

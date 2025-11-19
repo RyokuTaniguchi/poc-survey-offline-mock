@@ -170,30 +170,6 @@ export default function Home() {
   return (
     <div className="page survey-home-page">
       <div className="survey-home">
-        <section className="survey-home__hero">
-          <div className="survey-home__hero-top">
-            <span className="survey-home__label">現地登録モード</span>
-            <h1 className="survey-home__title">現有資産登録</h1>
-            <p className="survey-home__description">
-              オフライン環境での現地登録を行う前に、マスタデータのダウンロードとカメラアクセスの事前確認を完了してください。
-              調査開始後は /survey/ 配下の画面のみオフライン遷移が許可されます。
-            </p>
-          </div>
-          <div className="survey-home__hero-actions">
-            <button type="button" onClick={handleDownload} disabled={downloading}>
-              事前ダウンロードを実行
-            </button>
-            {readyForSurvey && <span className="survey-home__badge">最終更新: {lastDownloadedAt}</span>}
-            {cameraStatus === "granted" && <span className="survey-home__badge">カメラアクセス: 許可済み</span>}
-            {cameraStatus === "denied" && <span className="survey-home__badge">カメラアクセス: 許可なし</span>}
-          </div>
-          {error && (
-            <div className="survey-home__badge" style={{ background: "rgba(239, 68, 68, 0.2)", color: "#b91c1c" }}>
-              エラー: {error}
-            </div>
-          )}
-        </section>
-
         <section className="survey-home__status-grid">
           <div className={`survey-home__status-card${readyForSurvey ? "" : " status-card--warn"}`}>
             <h3>事前ダウンロード</h3>
@@ -205,33 +181,18 @@ export default function Home() {
             <strong>{onlineStatusText}</strong>
             <span>オンライン時のみ送信処理が有効です</span>
           </div>
-          <div className="survey-home__status-card">
-            <h3>作業済み件数</h3>
-            <strong>{completedCount}件</strong>
-            <span>調査完了後にサーバー送信予定（Phase2）</span>
-          </div>
           <div className={`survey-home__status-card${cameraReady ? "" : " status-card--warn"}`}>
             <h3>カメラステータス</h3>
             <strong>{cameraStatusText}</strong>
             <span>QRコード読取と撮影に使用します</span>
           </div>
-        </section>
-
-        <section className="survey-home__actions">
-          <div className="survey-home__actions-text">
-            <h3>現地登録を開始する</h3>
-            <p>部署入力 → QRコード読取 → 写真撮影 → 商品登録の順に進みます。</p>
-          </div>
-          <div className="survey-home__actions-buttons">
-            <button type="button" onClick={handleStartSurvey} disabled={!mastersReady}>
-              調査を開始
-            </button>
-            {showCompleteButton && (
-              <button type="button" className="ghost" onClick={handleCompleteSurvey} disabled={!online}>
-                調査完了（送信想定）
-              </button>
-            )}
-          </div>
+          {error && (
+            <div className="survey-home__status-card status-card--warn">
+              <h3>エラー</h3>
+              <strong>発生中</strong>
+              <span>{error}</span>
+            </div>
+          )}
         </section>
 
         <section className="survey-home__log">
@@ -252,15 +213,33 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <footer className="page-footer">
+        <button
+          type="button"
+          className="ghost"
+          onClick={handleDownload}
+          disabled={downloading}
+        >
+          事前ダウンロード
+        </button>
+        <button
+          type="button"
+          onClick={handleStartSurvey}
+          disabled={!mastersReady}
+        >
+          調査開始
+        </button>
+        <button
+          type="button"
+          onClick={handleCompleteSurvey}
+          disabled={!online || !showCompleteButton}
+        >
+          調査完了
+        </button>
+      </footer>
     </div>
   );
 }
-
-
-
-
-
-
 
 
 
