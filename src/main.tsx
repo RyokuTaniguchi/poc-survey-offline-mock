@@ -5,11 +5,13 @@ import { router } from './router';
 import './styles.css';
 import { primeOcrWorker, warmOcrAssets } from './lib/ocr';
 
+const BASE_PATH = import.meta.env.BASE_URL;
+
 // Service Worker 登録（任意。オフラインreload対応を強くしたい場合）
 // SWは出来るだけ早く登録して更新適用（オフライン信頼性向上）
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
-    .register('/sw.js')
+    .register(`${BASE_PATH}sw.js`)
     .then(() => navigator.serviceWorker.ready)
     .then(() => {
       void warmOcrAssets();

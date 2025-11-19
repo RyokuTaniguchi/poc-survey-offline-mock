@@ -9,7 +9,7 @@ import SurveyProduct from "./pages/survey/Product";
 import SurveyAll from "./pages/survey/SurveyAll";
 import MockHost from "./pages/mock/MockHost";
 
-export const router = createBrowserRouter([
+const routes = [
   {
     path: "/",
     children: [
@@ -32,4 +32,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(routes, {
+  // Vite の base (`/poc-survey-offline-mock/`) に追従
+  basename: import.meta.env.BASE_URL,
+});

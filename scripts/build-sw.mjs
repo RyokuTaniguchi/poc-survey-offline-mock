@@ -1,5 +1,8 @@
 import { generateSW } from 'workbox-build';
 
+// GitHub Pages での公開パス（Vite の base と揃える）
+const BASE_PATH = '/poc-survey-offline-mock/';
+
 const result = await generateSW({
   globDirectory: 'dist',
   globPatterns: [
@@ -13,12 +16,13 @@ const result = await generateSW({
   clientsClaim: true,
   skipWaiting: true,
   // navigation fallback を allowlist（/survey/* のみ）
-  navigateFallback: '/index.html',
-  navigateFallbackAllowlist: [/^\/survey(\/|$)/],
+  navigateFallback: `${BASE_PATH}index.html`,
+  navigateFallbackAllowlist: [new RegExp(`^${BASE_PATH}survey(\/|$)`)],
   runtimeCaching: [
     // OCR関連アセットは常にCacheFirstでオフラインでも確実に取得（優先的に登録）
     {
-      urlPattern: ({url}) => url.origin === self.location.origin && url.pathname.startsWith('/tesseract/'),
+      urlPattern: ({url}) =>
+        url.origin === self.location.origin && url.pathname.includes('/tesseract/'),
       handler: 'CacheFirst',
       options: { cacheName: 'ocr-assets-v1' }
     },

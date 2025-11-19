@@ -118,6 +118,10 @@ export default function MockHost({ mode = "login" }: MockHostProps) {
       const mainLayout = childDocument.getElementById("mainLayout");
       const assetListScreen = childDocument.getElementById("assetListScreen");
 
+      const basePath = import.meta.env.BASE_URL;
+      const isMockPath = () =>
+        window.location.pathname.startsWith(`${basePath}mock`);
+
       const showLogin = () => {
         if (loginPage) loginPage.style.display = "flex";
         if (mainLayout) {
@@ -125,7 +129,7 @@ export default function MockHost({ mode = "login" }: MockHostProps) {
           mainLayout.style.display = "none";
         }
         if (assetListScreen) assetListScreen.classList.remove("active");
-        if (!window.location.pathname.startsWith("/mock")) {
+        if (!isMockPath()) {
           navigate("/mock/login", { replace: true });
         }
         syncRoute("/mock/login");
@@ -138,7 +142,7 @@ export default function MockHost({ mode = "login" }: MockHostProps) {
           mainLayout.classList.add("active");
           mainLayout.style.display = "flex";
         }
-        if (!window.location.pathname.startsWith("/mock")) {
+        if (!isMockPath()) {
           navigate("/mock/dashboard", { replace: true });
         }
         syncRoute("/mock/dashboard");
@@ -159,7 +163,7 @@ export default function MockHost({ mode = "login" }: MockHostProps) {
           }
           if (assetListScreen) assetListScreen.classList.add("active");
         }
-        if (!window.location.pathname.startsWith("/mock")) {
+        if (!isMockPath()) {
           navigate("/mock/assets", { replace: true });
         }
         syncRoute("/mock/assets");
@@ -180,10 +184,16 @@ export default function MockHost({ mode = "login" }: MockHostProps) {
     };
   }, [mode, navigate]);
 
+  const basePath = import.meta.env.BASE_URL;
+
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden", background: "#f5f7fa" }}>
-      <iframe ref={iframeRef} title="医療コンサル管理システム モック" src="/mock/index.html" style={{ width: "100%", height: "100%", border: "none" }} />
+      <iframe
+        ref={iframeRef}
+        title="医療コンサル管理システム モック"
+        src={`${basePath}mock/index.html`}
+        style={{ width: "100%", height: "100%", border: "none" }}
+      />
     </div>
   );
 }
-
