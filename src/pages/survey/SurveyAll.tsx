@@ -898,10 +898,6 @@ export default function SurveyAllPage() {
     }
   };
 
-  const readyProduct =
-    Boolean(categoryId && subcategoryId && itemId && makerId && modelId) &&
-    Boolean(w || d || h || note);
-
   return (
     <div className="page">
       {/* QR・ラベルNo */}
@@ -1214,7 +1210,7 @@ export default function SurveyAllPage() {
         <button
           type="button"
           onClick={handleCompleteAndNext}
-          disabled={!(readyDepartment && readyLabel && assetReadyForNext && readyProduct)}
+          disabled={!(readyDepartment && readyLabel && assetReadyForNext)}
         >
           商品
           <br />
