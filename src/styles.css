@@ -242,6 +242,11 @@ button.ghost {
   color: var(--muted);
   background: #f8fafc;
 }
+.date-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 .visually-hidden {
   position: absolute;
   width: 1px;

@@ -436,16 +436,6 @@ export default function SurveyAllPage() {
     setLoaned(Boolean(current?.fields?.loanedFlag));
   }, [current?.fields?.assetNo, current?.fields?.equipmentNo, current?.fields?.purchaseDate, current?.fields?.leaseFlag, current?.fields?.loanedFlag]);
 
-  useEffect(() => {
-    if (!current?.fields?.purchaseDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const iso = today.toISOString().slice(0, 10);
-      setPurchaseDate(iso);
-      void setFields({ purchaseDate: iso });
-    }
-  }, [current?.fields?.purchaseDate, setFields]);
-
   const thumbUrls = useMemo(() => {
     return photos.map((photo) => ({
       id: photo.id,
@@ -1056,6 +1046,7 @@ export default function SurveyAllPage() {
             購入年月日
             <input
               type="date"
+              className="date-input"
               value={purchaseDate}
               onChange={(e) => {
                 const value = e.target.value;

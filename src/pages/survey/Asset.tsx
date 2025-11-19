@@ -33,16 +33,6 @@ export default function AssetPage() {
     setLoaned(Boolean(current?.fields?.loanedFlag));
   }, [current?.fields?.assetNo, current?.fields?.equipmentNo, current?.fields?.purchaseDate, current?.fields?.leaseFlag, current?.fields?.loanedFlag]);
 
-  useEffect(() => {
-    if (!current?.fields?.purchaseDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const iso = today.toISOString().slice(0, 10);
-      setPurchaseDate(iso);
-      void setFields({ purchaseDate: iso });
-    }
-  }, [current?.fields?.purchaseDate, setFields]);
-
   const sealNo = (current?.fields?.sealNo as string) ?? "";
   const roomName = (current?.fields?.roomName as string) ?? "";
 
