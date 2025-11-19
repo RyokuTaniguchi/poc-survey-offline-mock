@@ -50,12 +50,6 @@ export default function AssetPage() {
     return photos.map((photo) => ({ id: photo.id, url: URL.createObjectURL(photo.thumb) }));
   }, [photos]);
 
-  useEffect(() => {
-    return () => {
-      thumbUrls.forEach((thumb) => URL.revokeObjectURL(thumb.url));
-    };
-  }, [thumbUrls]);
-
   const handlePhotoSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];

@@ -454,12 +454,6 @@ export default function SurveyAllPage() {
     }));
   }, [photos]);
 
-  useEffect(() => {
-    return () => {
-      thumbUrls.forEach((thumb) => URL.revokeObjectURL(thumb.url));
-    };
-  }, [thumbUrls]);
-
   const handlePhotoSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
