@@ -3,13 +3,21 @@ import { parseCsv } from "./csv";
 
 const BASE_PATH = import.meta.env.BASE_URL ?? "/";
 
-function withBase(path: string) {
+function resolveAssetUrl(path: string) {
   const normalized = path.startsWith("/") ? path.slice(1) : path;
-  return `${BASE_PATH}${normalized}`;
+  if (typeof window === "undefined" || typeof window.location === "undefined") {
+    return `${BASE_PATH}${normalized}`;
+  }
+  try {
+    const baseUrl = new URL(BASE_PATH, window.location.origin);
+    return new URL(normalized, baseUrl).toString();
+  } catch {
+    return `${BASE_PATH}${normalized}`;
+  }
 }
 
 async function fetchCsvRows(path: string) {
-  const url = withBase(path);
+  const url = resolveAssetUrl(path);
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to download ${path}`);
