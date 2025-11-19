@@ -15,10 +15,10 @@ import {
   ProductModel,
 } from "../../lib/db";
 import { useDraft, useEnsureDraft } from "../../store/useDraft";
-import DuplicateOverlay from "../../components/DuplicateOverlay";
 import OcrCaptureDialog from "../../components/OcrCaptureDialog";
 import { QRScanner, QRScannerHandle } from "../../lib/qr";
 import { primeOcrWorker, type OcrResult } from "../../lib/ocr";
+import { ensureCameraAccess } from "../../lib/camera";
 
 function includesQuery(value: string, query: string) {
   if (!query) return true;
@@ -32,7 +32,20 @@ export default function SurveyAllPage() {
   useEnsureDraft();
   const navigate = useNavigate();
   const draftStore = useDraft();
-  const { current, photos, attachPhoto, removePhoto, setFields, completeCurrent, listHistory } = draftStore;
+  const {
+    current,
+    photos,
+    attachPhoto,
+    removePhoto,
+    setFields,
+    completeCurrent,
+    listHistory,
+    load,
+    completedCount,
+    duplicateDraft,
+    setQR,
+    togglePhotoForList,
+  } = draftStore;
 
   // ===== 部署入力セクション =====
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -301,6 +314,10 @@ export default function SurveyAllPage() {
   const [sealNo, setSealNo] = useState("");
   const [roomName, setRoomName] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkStartSealNo, setBulkStartSealNo] = useState("");
+  const [bulkCount, setBulkCount] = useState("");
+  const [qrTarget, setQrTarget] = useState<"single" | "bulkStart">("single");
 
   useEffect(() => {
     setSealNo((current?.fields?.sealNo as string) ?? "");
@@ -348,10 +365,16 @@ export default function SurveyAllPage() {
 
   const handleQrResult = (text: string) => {
     const trimmed = text.trim();
-    const match = trimmed.match(/medical-record\/([A-Za-z0-9-]+)$/i);
-    const extracted = match ? match[1] : trimmed;
-    setSealNo(extracted);
-    void draftStore.setQR(extracted);
+    // 例: https://xxx.com/x/{uuid} 形式のURLから末尾のUUID部分を抽出
+    const urlMatch = trimmed.match(/https?:\/\/[^/]+\/x\/([A-Za-z0-9-]+)$/i);
+    const uuidMatch = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+    const extracted = (urlMatch && urlMatch[1]) || (uuidMatch && uuidMatch[0]) || trimmed;
+    if (qrTarget === "bulkStart") {
+      setBulkStartSealNo(extracted);
+    } else {
+      setSealNo(extracted);
+      void setQR(extracted);
+    }
   };
 
   const handleSealChange = (value: string) => {
@@ -364,7 +387,15 @@ export default function SurveyAllPage() {
     void setFields({ roomName: value });
   };
 
-  const readyLabel = Boolean(sealNo.trim() && roomName.trim());
+  const readyLabel = useMemo(() => {
+    const roomOk = roomName.trim().length > 0;
+    const sealOk = sealNo.trim().length > 0;
+    const bulkStartOk = bulkStartSealNo.trim().length > 0;
+    const bulkCountNum = Number.parseInt(bulkCount, 10);
+    const bulkOk = bulkMode && bulkStartOk && Number.isFinite(bulkCountNum) && bulkCountNum > 0;
+    const singleOk = !bulkMode && sealOk;
+    return roomOk && (singleOk || bulkOk);
+  }, [bulkMode, bulkCount, bulkStartSealNo, roomName, sealNo]);
 
   // ===== 資産No / 写真 セクション =====
   const assetFileInputRef = useRef<HTMLInputElement>(null);
@@ -373,7 +404,6 @@ export default function SurveyAllPage() {
   const [purchaseDate, setPurchaseDate] = useState("");
   const [lease, setLease] = useState<boolean>(false);
   const [loaned, setLoaned] = useState<boolean>(false);
-  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [ocrTarget, setOcrTarget] = useState<"assetNo" | "equipmentNo">("assetNo");
   const [ocrOpen, setOcrOpen] = useState(false);
   const [ocrNotice, setOcrNotice] = useState<string | null>(null);
@@ -400,11 +430,12 @@ export default function SurveyAllPage() {
     }
   }, [current?.fields?.purchaseDate, setFields]);
 
-  const sealNoForAsset = (current?.fields?.sealNo as string) ?? "";
-  const roomNameForAsset = (current?.fields?.roomName as string) ?? "";
-
   const thumbUrls = useMemo(() => {
-    return photos.map((photo) => ({ id: photo.id, url: URL.createObjectURL(photo.thumb) }));
+    return photos.map((photo) => ({
+      id: photo.id,
+      url: URL.createObjectURL(photo.thumb),
+      selectedForList: Boolean(photo.selectedForList),
+    }));
   }, [photos]);
 
   useEffect(() => {
@@ -805,10 +836,45 @@ export default function SurveyAllPage() {
   };
 
   const handleCompleteAndNext = async () => {
+    if (!bulkMode) {
+      await completeCurrent({
+        preserveKeys: ["surveyDate", "investigator", "buildingId", "floorId", "departmentId", "divisionId"],
+      });
+      return;
+    }
+
+    const start = bulkStartSealNo.trim();
+    const count = Number.parseInt(bulkCount, 10);
+    if (!start || !Number.isFinite(count) || count <= 0) {
+      alert("一括登録モードでは、開始シールNoと1以上の登録個数を入力してください。");
+      return;
+    }
+    if (!current) return;
+
+    const baseId = current.id;
+
+    setSealNo(start);
+    await setQR(start);
+
     await completeCurrent({
       preserveKeys: ["surveyDate", "investigator", "buildingId", "floorId", "departmentId", "divisionId"],
     });
-    // 新しいドラフトに切り替わるので、そのまま次の資産の登録を続ける
+
+    const extra = count - 1;
+    if (extra > 0) {
+      await duplicateDraft(baseId, extra);
+    }
+  };
+
+  const handleGoToPreviousProduct = async () => {
+    try {
+      const rows = await listHistory("desc");
+      const prev = rows[0];
+      if (!prev) return;
+      await load(prev.id);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const readyProduct =
@@ -823,9 +889,84 @@ export default function SurveyAllPage() {
         <div className="section-title-underline-blue" />
         <div className="grid">
           <label>
-            シールNo
-            <input value={sealNo} onChange={(e) => handleSealChange(e.target.value)} placeholder="シールNoを入力" />
+            登録モード
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <input
+                type="checkbox"
+                checked={bulkMode}
+                onChange={(e) => setBulkMode(e.target.checked)}
+                style={{ width: 16, height: 16 }}
+              />
+              <span>一括登録モード</span>
+            </div>
           </label>
+          {bulkMode ? (
+            <>
+              <label>
+                開始シールNo
+                <div className="input-with-action">
+                  <input
+                    value={bulkStartSealNo}
+                    onChange={(e) => setBulkStartSealNo(e.target.value)}
+                    placeholder="開始シールNoを入力"
+                  />
+                  <button
+                    type="button"
+                    className="ghost input-action"
+                    onClick={async () => {
+                      try {
+                        setQrTarget("bulkStart");
+                        await ensureCameraAccess();
+                        await scannerRef.current?.start();
+                      } catch (err) {
+                        const message = err instanceof Error ? err.message : String(err);
+                        alert(`カメラを利用できませんでした: ${message}`);
+                      }
+                    }}
+                  >
+                    QR撮影
+                  </button>
+                </div>
+              </label>
+              <label>
+                登録個数
+                <input
+                  type="number"
+                  min={1}
+                  value={bulkCount}
+                  onChange={(e) => setBulkCount(e.target.value)}
+                  placeholder="個数を入力（例：椅子50脚の場合は「50」と入力）"
+                />
+              </label>
+            </>
+          ) : (
+            <label>
+              シールNo
+              <div className="input-with-action">
+                <input
+                  value={sealNo}
+                  onChange={(e) => handleSealChange(e.target.value)}
+                  placeholder="シールNoを入力"
+                />
+                <button
+                  type="button"
+                  className="ghost input-action"
+                  onClick={async () => {
+                    try {
+                      setQrTarget("single");
+                      await ensureCameraAccess();
+                      await scannerRef.current?.start();
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      alert(`カメラを利用できませんでした: ${message}`);
+                    }
+                  }}
+                >
+                  QR撮影
+                </button>
+              </div>
+            </label>
+          )}
           <label>
             室名
             <input value={roomName} onChange={(e) => handleRoomChange(e.target.value)} placeholder="室名を入力" />
@@ -862,14 +1003,6 @@ export default function SurveyAllPage() {
           onChange={(e) => handlePhotoSelect(e.target.files)}
         />
         <div className="grid">
-          <label>
-            シールNo
-            <input value={sealNoForAsset} disabled />
-          </label>
-          <label>
-            室名
-            <input value={roomNameForAsset} disabled />
-          </label>
           <label>
             資産番号
             <div className="input-with-action">
@@ -910,19 +1043,34 @@ export default function SurveyAllPage() {
           </div>
         </div>
         <div className="photo-strip">
-          {thumbUrls.map((thumb) => (
-            <div key={thumb.id} className="photo-item">
+          {thumbUrls.length === 0 ? (
+            <div className="photo-strip-empty">
+              撮影した写真がここに表示されます
+            </div>
+          ) : (
+            thumbUrls.map((thumb) => (
               <button
                 type="button"
-                className="photo-remove"
-                onClick={() => removePhoto(thumb.id)}
-                aria-label="写真を削除"
+                key={thumb.id}
+                className={`photo-item${thumb.selectedForList ? " is-selected" : ""}`}
+                onClick={() => { void togglePhotoForList(thumb.id); }}
               >
-                ×
+                <span className="visually-hidden">一覧表示用の写真として選択</span>
+                <button
+                  type="button"
+                  className="photo-remove"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void removePhoto(thumb.id);
+                  }}
+                  aria-label="写真を削除"
+                >
+                  ×
+                </button>
+                <img src={thumb.url} alt="サムネイル" />
               </button>
-              <img src={thumb.url} alt="サムネイル" />
-            </div>
-          ))}
+            ))
+          )}
         </div>
         {ocrNotice && <div className="ocr-result-banner">{ocrNotice}</div>}
       </div>
@@ -989,40 +1137,71 @@ export default function SurveyAllPage() {
           </div>
         </div>
         <div className="grid" style={{ marginTop: 16 }}>
-          <label>
-            W
-            <input value={w} onChange={(e) => { const value = e.target.value; setW(value); void setFields({ width: value }); }} placeholder="mm" />
-          </label>
-          <label>
-            D
-            <input value={d} onChange={(e) => { const value = e.target.value; setD(value); void setFields({ depth: value }); }} placeholder="mm" />
-          </label>
-          <label>
-            H
-            <input value={h} onChange={(e) => { const value = e.target.value; setH(value); void setFields({ height: value }); }} placeholder="mm" />
-          </label>
+          <div className="asset-size-row">
+            <label>
+              W
+              <input value={w} onChange={(e) => { const value = e.target.value; setW(value); void setFields({ width: value }); }} placeholder="mm" />
+            </label>
+            <label>
+              D
+              <input value={d} onChange={(e) => { const value = e.target.value; setD(value); void setFields({ depth: value }); }} placeholder="mm" />
+            </label>
+            <label>
+              H
+              <input value={h} onChange={(e) => { const value = e.target.value; setH(value); void setFields({ height: value }); }} placeholder="mm" />
+            </label>
+          </div>
           <label>
             備考
             <textarea value={note} onChange={(e) => { const value = e.target.value; setNote(value); void setFields({ note: value }); }} rows={3} />
           </label>
         </div>
-        <div className="row" style={{ justifyContent: "flex-start", marginTop: 8 }}>
-          <button type="button" className="ghost" onClick={() => setHistoryOpen(true)}>履歴表示</button>
-        </div>
       </div>
 
       {/* 全体フッター */}
       <footer className="page-footer">
-        <button type="button" className="ghost" onClick={() => setDuplicateOpen(true)}>複製</button>
         <button type="button" className="ghost" onClick={() => navigate("/survey/home")}>ホーム</button>
-        <button type="button" className="ghost" onClick={() => navigate("/survey/department")}>部門</button>
-        <button type="button" onClick={handleCompleteAndNext} disabled={!(readyDepartment && readyLabel && assetReadyForNext && readyProduct)}>
-          次の資産へ
+        <button type="button" className="ghost" onClick={() => navigate("/survey/department")}>
+          部門
+          <br />
+          入力へ
+        </button>
+        <button type="button" className="ghost" onClick={() => setHistoryOpen(true)}>
+          履歴
+          <br />
+          表示
+        </button>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => assetFileInputRef.current?.click()}
+        >
+          写真
+          <br />
+          撮影
+        </button>
+        <button
+          type="button"
+          className="ghost"
+          onClick={handleGoToPreviousProduct}
+          disabled={completedCount === 0}
+        >
+          前の商品に
+          <br />
+          戻る
+        </button>
+        <button
+          type="button"
+          onClick={handleCompleteAndNext}
+          disabled={!(readyDepartment && readyLabel && assetReadyForNext && readyProduct)}
+        >
+          商品
+          <br />
+          登録
         </button>
       </footer>
 
       {/* 共通ダイアログ/オーバーレイ */}
-      <DuplicateOverlay open={duplicateOpen} onClose={() => setDuplicateOpen(false)} />
       <OcrCaptureDialog
         open={ocrOpen}
         targetLabel={ocrTarget === "assetNo" ? "資産番号" : "備品番号"}

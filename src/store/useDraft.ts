@@ -20,6 +20,7 @@ type DraftState = {
   setQR: (qr: string) => Promise<void>;
   attachPhoto: (file: File) => Promise<void>;
   removePhoto: (photoId: string) => Promise<void>;
+  togglePhotoForList: (photoId: string) => Promise<void>;
   refreshPhotos: () => Promise<void>;
   refreshStats: () => Promise<void>;
   completeCurrent: (options?: CompleteOptions) => Promise<string | undefined>;
@@ -117,6 +118,7 @@ export const useDraft = create<DraftState>((set, get) => {
       const cur = get().current;
       if (!cur) return;
       const { blob, thumb } = await compressToWebp(file);
+      const existing = await db.survey_photos.where("draftId").equals(cur.id).count();
       const photo: Photo = {
         id: crypto.randomUUID(),
         draftId: cur.id,
@@ -124,6 +126,7 @@ export const useDraft = create<DraftState>((set, get) => {
         thumb,
         size: blob.size,
         createdAt: Date.now(),
+        selectedForList: existing === 0,
       };
       await db.survey_photos.put(photo);
       const next: Draft = {
@@ -132,6 +135,20 @@ export const useDraft = create<DraftState>((set, get) => {
         updatedAt: Date.now(),
       };
       await writeDraft(next);
+      await refreshPhotosInternal();
+    },
+    async togglePhotoForList(photoId) {
+      const cur = get().current;
+      if (!cur) return;
+      const target = await db.survey_photos.get(photoId);
+      const willSelect = !target?.selectedForList;
+      await db.survey_photos
+        .where("draftId")
+        .equals(cur.id)
+        .modify((photo) => {
+          // eslint-disable-next-line no-param-reassign
+          photo.selectedForList = willSelect && photo.id === photoId;
+        });
       await refreshPhotosInternal();
     },
     async removePhoto(photoId) {

@@ -104,7 +104,17 @@ a {
   gap: 12px;
   justify-content: flex-end;
   border-top: 1px solid var(--border);
-  padding-top: 16px;
+  padding: 12px 24px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface);
+  z-index: 30;
+}
+.page-footer button {
+  font-size: 12px;
+  padding: 8px 14px;
 }
 .row {
   display: flex;
@@ -115,6 +125,15 @@ a {
 .grid {
   display: grid;
   gap: 12px;
+}
+.asset-size-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+.asset-size-row > label {
+  flex: 1;
+  min-width: 0;
 }
 label {
   display: flex;
@@ -210,6 +229,29 @@ button.ghost {
   gap: 12px;
   overflow-x: auto;
   padding: 8px 0;
+}
+.photo-strip-empty {
+  flex: 1;
+  min-height: 160px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--muted);
+  background: #f8fafc;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .photo-strip img {
   width: 160px;
@@ -447,6 +489,10 @@ button.ghost {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
+  border: 2px solid transparent;
+}
+.photo-item.is-selected {
+  border-color: #ef4444;
 }
 .photo-remove {
   position: absolute;
@@ -500,14 +546,17 @@ button.ghost {
 
 .survey-header {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   gap: 24px;
-  padding: 32px 36px;
+  padding: 24px 28px;
   background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(26, 188, 156, 0.2));
+  background-color: #f4f7fb;
   border-bottom: 1px solid rgba(15, 23, 42, 0.05);
   box-shadow: 0 12px 40px rgba(15, 118, 110, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
 
 .survey-header__left {
@@ -515,6 +564,8 @@ button.ghost {
   flex-direction: column;
   gap: 10px;
   color: #0f172a;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .survey-header__back {
@@ -576,7 +627,7 @@ button.ghost {
 .survey-header__stats {
   display: flex;
   gap: 16px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .survey-badge {
@@ -617,9 +668,8 @@ button.ghost {
 
 .survey-main {
   flex: 1;
-  padding: 32px;
+  padding: 32px 32px 96px;
 }
-
 .survey-main__inner {
   max-width: 1040px;
   margin: 0 auto;
@@ -627,14 +677,47 @@ button.ghost {
 
 @media (max-width: 768px) {
   .survey-header {
-    padding: 24px;
+    padding: 16px 20px;
   }
 
   .survey-header__title {
     font-size: 24px;
   }
 
+  .survey-header__chip {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .survey-header__user {
+    font-size: 12px;
+  }
+
   .survey-main {
-    padding: 20px;
+    padding: 20px 20px 96px;
+  }
+
+  .survey-header__stats {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .survey-badge {
+    padding: 8px 10px;
+    border-radius: 14px;
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .survey-badge__label {
+    font-size: 10px;
+  }
+
+  .survey-badge__value {
+    font-size: 13px;
+  }
+
+  .page-footer button {
+    font-size: 11px;
   }
 }

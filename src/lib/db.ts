@@ -14,6 +14,7 @@ export interface Photo {
   thumb: Blob;
   size: number;
   createdAt: number;
+  selectedForList?: boolean;
 }
 export interface MasterItem {
   id: string;

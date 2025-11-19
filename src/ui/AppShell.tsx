@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useOnlineStatus } from "../util/useOnlineStatus";
 import { useStorageEstimate } from "../util/useStorageEstimate";
 import { useDraft } from "../store/useDraft";
@@ -11,15 +11,12 @@ function getSessionValue(key: string, fallback: string) {
 }
 
 export default function AppShell() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const token = typeof window !== "undefined" ? sessionStorage.getItem("mockToken") : null;
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
   const hospitalName = getSessionValue("mockHospitalName", "");
-  const showBackToSurveyHome = location.pathname.startsWith("/survey") && location.pathname !== "/survey/home";
   const userEmail = getSessionValue("mockUserEmail", "survey.operator@example.com");
 
   const online = useOnlineStatus();
@@ -31,12 +28,6 @@ export default function AppShell() {
     <div className="app survey-app">
       <header className="survey-header">
         <div className="survey-header__left">
-          {showBackToSurveyHome && (
-            <button type="button" className="survey-header__back" onClick={() => navigate("/survey/home")}>
-              <span className="survey-header__back-icon">←</span>
-              <span>戻る</span>
-            </button>
-          )}
           <span className="survey-header__chip">現地登録アプリ</span>
           {showHospitalName && <h1 className="survey-header__title">{hospitalName}</h1>}
           <p className="survey-header__user">{userEmail}</p>
