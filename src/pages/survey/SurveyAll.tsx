@@ -1086,8 +1086,7 @@ export default function SurveyAllPage() {
             </div>
           ) : (
             thumbUrls.map((thumb) => (
-              <button
-                type="button"
+              <div
                 key={thumb.id}
                 className={`photo-item${thumb.selectedForList ? " is-selected" : ""}`}
                 onClick={() => { void togglePhotoForList(thumb.id); }}
@@ -1105,7 +1104,7 @@ export default function SurveyAllPage() {
                   ×
                 </button>
                 <img src={thumb.url} alt="サムネイル" />
-              </button>
+              </div>
             ))
           )}
         </div>
