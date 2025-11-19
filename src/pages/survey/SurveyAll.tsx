@@ -819,7 +819,8 @@ export default function SurveyAllPage() {
     <div className="page">
       {/* QR・ラベルNo */}
       <div className="page-section">
-        <h2 className="section-title">QRコード読取・ラベルNo確認</h2>
+        <h2 className="section-title">QR読取・基本情報</h2>
+        <div className="section-title-underline-blue" />
         <div className="grid">
           <label>
             シールNo
