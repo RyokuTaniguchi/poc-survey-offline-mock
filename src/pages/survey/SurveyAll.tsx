@@ -1250,43 +1250,49 @@ export default function SurveyAllPage() {
             )}
             {!historyLoading && !historyError && historyItems.length > 0 && (
               <div className="history-list">
-                {historyItems.map((draft) => {
-                  const fields = (draft.fields ?? {}) as DraftFields;
-                  const completedAt = fields.completedAt ?? draft.updatedAt;
-                  const catName = categories.find((c) => c.id === fields.categoryId)?.name ?? "-";
-                  const subcatName = subcategories.find((s) => s.id === fields.subcategoryId)?.name ?? "-";
-                  const itemName = items.find((i) => i.id === fields.itemId)?.name ?? "-";
-                  const makerName = makers.find((m) => m.id === fields.makerId)?.name ?? "-";
-                  const modelName = models.find((m) => m.id === fields.modelId)?.name ?? "-";
-                  const width = fields.width ?? "-";
-                  const depth = fields.depth ?? "-";
-                  const height = fields.height ?? "-";
-                  return (
-                    <button
-                      type="button"
-                      key={draft.id}
-                      className="history-row"
-                      onClick={() => applyHistory(draft)}
-                    >
-                      <div className="history-meta">
-                        <span>{new Date(completedAt).toLocaleString()}</span>
-                        {fields.assetNo && <span className="pill">資産 {fields.assetNo}</span>}
-                        {fields.equipmentNo && <span className="pill">備品 {fields.equipmentNo}</span>}
-                        {fields.sealNo && <span className="pill">QR {fields.sealNo}</span>}
-                      </div>
-                      <div className="history-tags">
-                        <span className="pill">{catName}</span>
-                        <span className="pill">{subcatName}</span>
-                        <span className="pill">{itemName}</span>
-                        <span className="pill">{makerName}</span>
-                        <span className="pill">{modelName}</span>
-                      </div>
-                      <div className="history-meta">
-                        <span>W:{width} / D:{depth} / H:{height}</span>
-                      </div>
-                    </button>
-                  );
-                })}
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>大分類</th>
+                      <th>中分類</th>
+                      <th>品目</th>
+                      <th>メーカー名</th>
+                      <th>型式</th>
+                      <th>W</th>
+                      <th>D</th>
+                      <th>H</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyItems.map((draft) => {
+                      const fields = (draft.fields ?? {}) as DraftFields;
+                      const catName = categories.find((c) => c.id === fields.categoryId)?.name ?? "-";
+                      const subcatName = subcategories.find((s) => s.id === fields.subcategoryId)?.name ?? "-";
+                      const itemName = items.find((i) => i.id === fields.itemId)?.name ?? "-";
+                      const makerName = makers.find((m) => m.id === fields.makerId)?.name ?? "-";
+                      const modelName = models.find((m) => m.id === fields.modelId)?.name ?? "-";
+                      const width = fields.width ?? "-";
+                      const depth = fields.depth ?? "-";
+                      const height = fields.height ?? "-";
+                      return (
+                        <tr
+                          key={draft.id}
+                          className="history-row"
+                          onClick={() => applyHistory(draft)}
+                        >
+                          <td>{catName}</td>
+                          <td>{subcatName}</td>
+                          <td>{itemName}</td>
+                          <td>{makerName}</td>
+                          <td>{modelName}</td>
+                          <td>{width}</td>
+                          <td>{depth}</td>
+                          <td>{height}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

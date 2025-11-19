@@ -454,24 +454,15 @@ button.ghost {
 .history-list {
   margin-top: 16px;
   overflow-y: auto;
-  display: grid;
-  gap: 10px;
   padding-right: 4px;
 }
 .history-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
-  background: var(--surface-muted);
   cursor: pointer;
   text-align: left;
   color: var(--text);
 }
 .history-row:hover {
-  border-color: var(--accent);
+  background: var(--surface-muted);
 }
 .history-row:focus {
   outline: 2px solid var(--accent);
@@ -489,6 +480,25 @@ button.ghost {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.history-table th,
+.history-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.history-table th {
+  font-weight: 600;
+  color: #475569;
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .photo-item {
   position: relative;
@@ -734,5 +744,28 @@ button.ghost {
   .page-footer button {
     font-size: 11px;
     flex: 0 0 auto;
+  }
+
+  .history-panel {
+    width: min(520px, 100%);
+    padding: 16px;
+  }
+
+  .history-header h3 {
+    font-size: 16px;
+  }
+
+  .history-header .ghost {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .history-table {
+    font-size: 11px;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 4px 6px;
   }
 }
