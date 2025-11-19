@@ -519,12 +519,6 @@ export default function SurveyAllPage() {
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historyOrder, setHistoryOrder] = useState<SortOrder>("asc");
 
-  const prevCategoryId = useRef<string | undefined>(undefined);
-  const prevSubcategoryId = useRef<string | undefined>(undefined);
-  const prevItemId = useRef<string | undefined>(undefined);
-  const prevMakerId = useRef<string | undefined>(undefined);
-  const prevModelId = useRef<string | undefined>(undefined);
-
   useEffect(() => {
     void Promise.all([
       db.product_categories.toArray(),
@@ -561,57 +555,35 @@ export default function SurveyAllPage() {
   const selectedModel = models.find((m) => m.id === modelId);
 
   useEffect(() => {
-    if (selectedCategory?.id !== prevCategoryId.current) {
-      if (selectedCategory) {
-        setCategoryQuery(selectedCategory.name);
-      } else if (prevCategoryId.current) {
-        setCategoryQuery("");
-      }
-      prevCategoryId.current = selectedCategory?.id;
-    }
-  }, [selectedCategory]);
-  useEffect(() => {
-    if (selectedSubcategory?.id !== prevSubcategoryId.current) {
-      if (selectedSubcategory) {
-        setSubcategoryQuery(selectedSubcategory.name);
-      } else if (prevSubcategoryId.current) {
-        setSubcategoryQuery("");
-      }
-      prevSubcategoryId.current = selectedSubcategory?.id;
-    }
-  }, [selectedSubcategory]);
-  useEffect(() => {
-    if (selectedItem?.id !== prevItemId.current) {
-      if (selectedItem) {
-        setItemQuery(selectedItem.name);
-      } else if (prevItemId.current) {
-        setItemQuery("");
-      }
-      prevItemId.current = selectedItem?.id;
-    }
-  }, [selectedItem]);
-  useEffect(() => {
-    if (selectedMaker?.id !== prevMakerId.current) {
-      if (selectedMaker) {
-        setMakerQuery(selectedMaker.name);
-      } else if (prevMakerId.current) {
-        setMakerQuery("");
-      }
-      prevMakerId.current = selectedMaker?.id;
-    }
-  }, [selectedMaker]);
-  useEffect(() => {
-    if (selectedModel?.id !== prevModelId.current) {
-      if (selectedModel) {
-        setModelQuery(selectedModel.name);
-      } else if (prevModelId.current) {
-        setModelQuery("");
-      }
-      prevModelId.current = selectedModel?.id;
-    }
-  }, [selectedModel]);
+    const fields = (current?.fields ?? {}) as DraftFields;
+    const catName = (fields.categoryName as string | undefined) ?? selectedCategory?.name ?? "";
+    const subcatName = (fields.subcategoryName as string | undefined) ?? selectedSubcategory?.name ?? "";
+    const itemName = (fields.itemName as string | undefined) ?? selectedItem?.name ?? "";
+    const makerName = (fields.makerName as string | undefined) ?? selectedMaker?.name ?? "";
+    const modelName = (fields.modelName as string | undefined) ?? selectedModel?.name ?? "";
 
-  const filteredCategories = useMemo(() => categories.filter((c) => includesQuery(c.name, categoryQuery)), [categories, categoryQuery]);
+    setCategoryQuery(catName);
+    setSubcategoryQuery(subcatName);
+    setItemQuery(itemName);
+    setMakerQuery(makerName);
+    setModelQuery(modelName);
+  }, [
+    current?.fields?.categoryName,
+    current?.fields?.subcategoryName,
+    current?.fields?.itemName,
+    current?.fields?.makerName,
+    current?.fields?.modelName,
+    selectedCategory,
+    selectedSubcategory,
+    selectedItem,
+    selectedMaker,
+    selectedModel,
+  ]);
+
+  const filteredCategories = useMemo(
+    () => categories.filter((c) => includesQuery(c.name, categoryQuery)),
+    [categories, categoryQuery]
+  );
   const filteredSubcategories = useMemo(
     () => subcategories.filter((s) => includesQuery(s.name, subcategoryQuery)),
     [subcategories, subcategoryQuery]
@@ -629,6 +601,31 @@ export default function SurveyAllPage() {
     [models, modelQuery]
   );
 
+  const handleCategoryQueryChange = (value: string) => {
+    setCategoryQuery(value);
+    void setFields({ categoryName: value });
+  };
+
+  const handleSubcategoryQueryChange = (value: string) => {
+    setSubcategoryQuery(value);
+    void setFields({ subcategoryName: value });
+  };
+
+  const handleItemQueryChange = (value: string) => {
+    setItemQuery(value);
+    void setFields({ itemName: value });
+  };
+
+  const handleMakerQueryChange = (value: string) => {
+    setMakerQuery(value);
+    void setFields({ makerName: value });
+  };
+
+  const handleModelQueryChange = (value: string) => {
+    setModelQuery(value);
+    void setFields({ modelName: value });
+  };
+
   const selectCategory = (category: ProductCategory) => {
     if (categoryId === category.id) {
       setCategoryQuery("");
@@ -638,10 +635,15 @@ export default function SurveyAllPage() {
       setModelQuery("");
       void setFields({
         categoryId: undefined,
+        categoryName: undefined,
         subcategoryId: undefined,
+        subcategoryName: undefined,
         itemId: undefined,
+        itemName: undefined,
         makerId: undefined,
+        makerName: undefined,
         modelId: undefined,
+        modelName: undefined,
       });
       return;
     }
@@ -652,10 +654,15 @@ export default function SurveyAllPage() {
     setModelQuery("");
     void setFields({
       categoryId: category.id,
+      categoryName: category.name,
       subcategoryId: undefined,
+      subcategoryName: undefined,
       itemId: undefined,
+      itemName: undefined,
       makerId: undefined,
+      makerName: undefined,
       modelId: undefined,
+      modelName: undefined,
     });
   };
 
@@ -668,9 +675,13 @@ export default function SurveyAllPage() {
       void setFields({
         categoryId: categoryId ?? subcategory.categoryId,
         subcategoryId: undefined,
+        subcategoryName: undefined,
         itemId: undefined,
+        itemName: undefined,
         makerId: undefined,
+        makerName: undefined,
         modelId: undefined,
+        modelName: undefined,
       });
       return;
     }
@@ -681,9 +692,13 @@ export default function SurveyAllPage() {
     void setFields({
       categoryId: subcategory.categoryId,
       subcategoryId: subcategory.id,
+      subcategoryName: subcategory.name,
       itemId: undefined,
+      itemName: undefined,
       makerId: undefined,
+      makerName: undefined,
       modelId: undefined,
+      modelName: undefined,
     });
   };
 
@@ -696,8 +711,11 @@ export default function SurveyAllPage() {
         categoryId: categoryId ?? item.categoryId,
         subcategoryId: subcategoryId ?? item.subcategoryId,
         itemId: undefined,
+        itemName: undefined,
         makerId: undefined,
+        makerName: undefined,
         modelId: undefined,
+        modelName: undefined,
       });
       return;
     }
@@ -708,8 +726,11 @@ export default function SurveyAllPage() {
       categoryId: item.categoryId,
       subcategoryId: item.subcategoryId,
       itemId: item.id,
+      itemName: item.name,
       makerId: undefined,
+      makerName: undefined,
       modelId: undefined,
+      modelName: undefined,
     });
   };
 
@@ -722,7 +743,9 @@ export default function SurveyAllPage() {
         subcategoryId: subcategoryId ?? maker.subcategoryId,
         itemId: itemId ?? maker.itemId,
         makerId: undefined,
+        makerName: undefined,
         modelId: undefined,
+        modelName: undefined,
       });
       return;
     }
@@ -733,7 +756,9 @@ export default function SurveyAllPage() {
       subcategoryId: maker.subcategoryId,
       itemId: maker.itemId,
       makerId: maker.id,
+      makerName: maker.name,
       modelId: undefined,
+      modelName: undefined,
     });
   };
 
@@ -746,6 +771,7 @@ export default function SurveyAllPage() {
         itemId: itemId ?? model.itemId,
         makerId: makerId ?? model.makerId,
         modelId: undefined,
+        modelName: undefined,
       });
       return;
     }
@@ -756,6 +782,7 @@ export default function SurveyAllPage() {
       itemId: model.itemId,
       makerId: model.makerId,
       modelId: model.id,
+      modelName: model.name,
     });
   };
 
@@ -1099,7 +1126,7 @@ export default function SurveyAllPage() {
         <div className="grid">
           <label>
             大分類
-            <input value={categoryQuery} onChange={(e) => setCategoryQuery(e.target.value)} placeholder="大分類を検索" />
+            <input value={categoryQuery} onChange={(e) => handleCategoryQueryChange(e.target.value)} placeholder="大分類を検索" />
           </label>
           <div className="option-list">
             {filteredCategories.map((category) => (
@@ -1110,7 +1137,7 @@ export default function SurveyAllPage() {
           </div>
           <label>
             中分類
-            <input value={subcategoryQuery} onChange={(e) => setSubcategoryQuery(e.target.value)} placeholder="中分類を検索" />
+            <input value={subcategoryQuery} onChange={(e) => handleSubcategoryQueryChange(e.target.value)} placeholder="中分類を検索" />
           </label>
           <div className="option-list">
             {filteredSubcategories.map((subcategory) => (
@@ -1121,7 +1148,7 @@ export default function SurveyAllPage() {
           </div>
           <label>
             品目
-            <input value={itemQuery} onChange={(e) => setItemQuery(e.target.value)} placeholder="品目を検索" />
+            <input value={itemQuery} onChange={(e) => handleItemQueryChange(e.target.value)} placeholder="品目を検索" />
           </label>
           <div className="option-list">
             {filteredItems.map((item) => (
@@ -1132,7 +1159,7 @@ export default function SurveyAllPage() {
           </div>
           <label>
             メーカー名
-            <input value={makerQuery} onChange={(e) => setMakerQuery(e.target.value)} placeholder="メーカー名を検索" />
+            <input value={makerQuery} onChange={(e) => handleMakerQueryChange(e.target.value)} placeholder="メーカー名を検索" />
           </label>
           <div className="option-list">
             {filteredMakers.map((maker) => (
@@ -1143,7 +1170,7 @@ export default function SurveyAllPage() {
           </div>
           <label>
             型式
-            <input value={modelQuery} onChange={(e) => setModelQuery(e.target.value)} placeholder="型式を検索" />
+            <input value={modelQuery} onChange={(e) => handleModelQueryChange(e.target.value)} placeholder="型式を検索" />
           </label>
           <div className="option-list">
             {filteredModels.map((model) => (
@@ -1262,11 +1289,26 @@ export default function SurveyAllPage() {
                   <tbody>
                     {historyItems.map((draft) => {
                       const fields = (draft.fields ?? {}) as DraftFields;
-                      const catName = categories.find((c) => c.id === fields.categoryId)?.name ?? "-";
-                      const subcatName = subcategories.find((s) => s.id === fields.subcategoryId)?.name ?? "-";
-                      const itemName = items.find((i) => i.id === fields.itemId)?.name ?? "-";
-                      const makerName = makers.find((m) => m.id === fields.makerId)?.name ?? "-";
-                      const modelName = models.find((m) => m.id === fields.modelId)?.name ?? "-";
+                      const catName =
+                        (fields.categoryName as string | undefined) ??
+                        categories.find((c) => c.id === fields.categoryId)?.name ??
+                        "-";
+                      const subcatName =
+                        (fields.subcategoryName as string | undefined) ??
+                        subcategories.find((s) => s.id === fields.subcategoryId)?.name ??
+                        "-";
+                      const itemName =
+                        (fields.itemName as string | undefined) ??
+                        items.find((i) => i.id === fields.itemId)?.name ??
+                        "-";
+                      const makerName =
+                        (fields.makerName as string | undefined) ??
+                        makers.find((m) => m.id === fields.makerId)?.name ??
+                        "-";
+                      const modelName =
+                        (fields.modelName as string | undefined) ??
+                        models.find((m) => m.id === fields.modelId)?.name ??
+                        "-";
                       const width = fields.width ?? "-";
                       const depth = fields.depth ?? "-";
                       const height = fields.height ?? "-";
