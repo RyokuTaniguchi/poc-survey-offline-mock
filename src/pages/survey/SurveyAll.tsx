@@ -387,6 +387,22 @@ export default function SurveyAllPage() {
     void setFields({ roomName: value });
   };
 
+  const handleBulkModeChange = (checked: boolean) => {
+    setBulkMode(checked);
+    if (checked) {
+      // 単体モード → 一括モード
+      if (sealNo.trim()) {
+        setBulkStartSealNo(sealNo);
+      }
+    } else {
+      // 一括モード → 単体モード
+      if (bulkStartSealNo.trim()) {
+        setSealNo(bulkStartSealNo);
+        void setFields({ sealNo: bulkStartSealNo, qrCode: bulkStartSealNo });
+      }
+    }
+  };
+
   const readyLabel = useMemo(() => {
     const roomOk = roomName.trim().length > 0;
     const sealOk = sealNo.trim().length > 0;
@@ -837,9 +853,30 @@ export default function SurveyAllPage() {
 
   const handleCompleteAndNext = async () => {
     if (!bulkMode) {
+      const baseSeal = (current?.fields?.sealNo as string | undefined) ?? sealNo;
+      let nextSeal: string | null = null;
+      if (baseSeal) {
+        const match = baseSeal.match(/(\d+)(?!.*\d)/);
+        if (match && match.index !== undefined) {
+          const numericStart = match.index;
+          const baseNumber = Number.parseInt(match[1], 10);
+          const digitLength = match[1].length;
+          const prefix = baseSeal.slice(0, numericStart);
+          const suffix = baseSeal.slice(numericStart + digitLength);
+          const nextNumber = baseNumber + 1;
+          const padded = String(nextNumber).padStart(digitLength, "0");
+          nextSeal = `${prefix}${padded}${suffix}`;
+        }
+      }
+
       await completeCurrent({
         preserveKeys: ["surveyDate", "investigator", "buildingId", "floorId", "departmentId", "divisionId"],
       });
+
+      if (nextSeal) {
+        setSealNo(nextSeal);
+        await setQR(nextSeal);
+      }
       return;
     }
 
@@ -894,7 +931,7 @@ export default function SurveyAllPage() {
               <input
                 type="checkbox"
                 checked={bulkMode}
-                onChange={(e) => setBulkMode(e.target.checked)}
+                onChange={(e) => handleBulkModeChange(e.target.checked)}
                 style={{ width: 16, height: 16 }}
               />
               <span>一括登録モード</span>

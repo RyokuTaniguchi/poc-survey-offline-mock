@@ -27,11 +27,11 @@ export default function AppShell() {
   return (
     <div className="app survey-app">
       <header className="survey-header">
-        <div className="survey-header__left">
+        <div className="survey-header__top">
           <span className="survey-header__chip">現地登録アプリ</span>
-          {showHospitalName && <h1 className="survey-header__title">{hospitalName}</h1>}
           <p className="survey-header__user">{userEmail}</p>
         </div>
+        {showHospitalName && <h1 className="survey-header__title">{hospitalName}</h1>}
         <div className="survey-header__stats">
           <div className={`survey-badge${online ? " is-online" : " is-offline"}`}>
             <span className="survey-badge__label">通信状態</span>
