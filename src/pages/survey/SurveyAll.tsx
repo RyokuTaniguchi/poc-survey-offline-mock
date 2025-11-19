@@ -851,7 +851,8 @@ export default function SurveyAllPage() {
 
       {/* 写真撮影・資産No */}
       <div className="page-section">
-        <h2 className="section-title">写真撮影・資産No登録</h2>
+        <h2 className="section-title">写真撮影・資産番号</h2>
+        <div className="section-title-underline-blue" />
         <input
           type="file"
           accept="image/*"
@@ -928,7 +929,8 @@ export default function SurveyAllPage() {
 
       {/* 商品登録 */}
       <div className="page-section">
-        <h2 className="section-title">商品登録</h2>
+        <h2 className="section-title">資産情報登録</h2>
+        <div className="section-title-underline-blue" />
         <div className="grid">
           <label>
             大分類
