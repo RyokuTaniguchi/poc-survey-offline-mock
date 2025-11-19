@@ -1,8 +1,16 @@
 import { db, Building, Department, Division, Floor, ProductCategory, ProductItem, ProductMaker, ProductModel, ProductSubcategory, Room } from "./db";
 import { parseCsv } from "./csv";
 
+const BASE_PATH = import.meta.env.BASE_URL ?? "/";
+
+function withBase(path: string) {
+  const normalized = path.startsWith("/") ? path.slice(1) : path;
+  return `${BASE_PATH}${normalized}`;
+}
+
 async function fetchCsvRows(path: string) {
-  const res = await fetch(path, { cache: "no-store" });
+  const url = withBase(path);
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to download ${path}`);
   }
