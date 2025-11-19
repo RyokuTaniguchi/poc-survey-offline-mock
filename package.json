@@ -1,0 +1,31 @@
+{
+  "name": "poc-survey-offline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "fetch:ocr": "node scripts/fetch-ocr-model.mjs",
+    "build": "npm run fetch:ocr && vite build && node scripts/build-sw.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@zxing/browser": "^0.1.5",
+    "browser-image-compression": "^2.0.2",
+    "dexie": "^4.0.8",
+    "fuse.js": "^7.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "tesseract.js": "^6.0.1",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.2.67",
+    "@types/react-dom": "^18.2.22",
+    "typescript": "^5.4.5",
+    "vite": "^5.0.12",
+    "workbox-build": "^7.0.0"
+  }
+}

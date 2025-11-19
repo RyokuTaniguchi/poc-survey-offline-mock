@@ -1,0 +1,35 @@
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import AppShell from "./ui/AppShell";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import SurveyDepartment from "./pages/survey/Department";
+import SurveyLabel from "./pages/survey/Label";
+import SurveyAsset from "./pages/survey/Asset";
+import SurveyProduct from "./pages/survey/Product";
+import SurveyAll from "./pages/survey/SurveyAll";
+import MockHost from "./pages/mock/MockHost";
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    children: [
+      { index: true, element: <Navigate to="/login" replace /> },
+      { path: "mock/login", element: <MockHost mode="login" /> },
+      { path: "mock/dashboard", element: <MockHost mode="dashboard" /> },
+      { path: "mock/assets", element: <MockHost mode="assets" /> },
+      { path: "login", element: <Login /> },
+      {
+        element: <AppShell />,
+        children: [
+          { path: "home", element: <Navigate to="/survey/home" replace /> },
+          { path: "survey/home", element: <Home /> },
+          { path: "survey/all", element: <SurveyAll /> },
+          { path: "survey/department", element: <SurveyDepartment /> },
+          { path: "survey/label", element: <SurveyLabel /> },
+          { path: "survey/asset", element: <SurveyAsset /> },
+          { path: "survey/product", element: <SurveyProduct /> },
+        ],
+      },
+    ],
+  },
+]);

@@ -1,0 +1,35 @@
+{
+  "lastUpdated": "2025-10-01T00:00:00Z",
+  "items": [
+    {
+      "id": "1001",
+      "name": "輸液ポンプ A100",
+      "maker": "ACME",
+      "model": "A100"
+    },
+    {
+      "id": "1002",
+      "name": "シリンジポンプ S-20",
+      "maker": "ACME",
+      "model": "S20"
+    },
+    {
+      "id": "1003",
+      "name": "心電計 ECG-3",
+      "maker": "HeartWorks",
+      "model": "ECG-3"
+    },
+    {
+      "id": "1004",
+      "name": "除細動器 D-Plus",
+      "maker": "SafeLife",
+      "model": "D-Plus"
+    },
+    {
+      "id": "1005",
+      "name": "超音波診断装置 EchoMini",
+      "maker": "SoundMed",
+      "model": "EchoMini"
+    }
+  ]
+}

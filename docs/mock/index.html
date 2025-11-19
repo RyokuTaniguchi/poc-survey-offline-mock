@@ -1,0 +1,3089 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医療コンサル管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        /* ページコンテナ */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ログインページ */
+        .login-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .login-container h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #5a6c7d;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #27ae60;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .show-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: #e1e8ed;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .show-password:hover {
+            background: #cbd5e1;
+        }
+        
+        .show-password::after {
+            content: '👁';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #5a6c7d;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .login-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+        
+        .forgot-password {
+            margin-top: 24px;
+            text-align: center;
+        }
+        
+        .forgot-password a {
+            color: #27ae60;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .forgot-password a:hover {
+            color: #2ecc71;
+            text-decoration: underline;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        /* メインレイアウト */
+        .main-layout {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .main-layout.active {
+            display: flex;
+        }
+        
+        /* サイドバー（PC用） */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        
+        .system-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        
+        .user-role {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        /* 病院セレクター */
+        .hospital-selector {
+            padding: 20px;
+            border-bottom: 1px solid #e1e8ed;
+            position: relative;
+        }
+        
+        .hospital-selector.warning {
+            background: #fff3cd;
+        }
+        
+        .hospital-selector.success {
+            background: #f0fdf4;
+        }
+        
+        .selector-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .hospital-selector.warning .selector-label {
+            color: #856404;
+        }
+        
+        .hospital-selector.success .selector-label {
+            color: #22c55e;
+        }
+        
+        .hospital-dropdown {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e1e8ed;
+            position: relative;
+        }
+        
+        .hospital-selector.warning .hospital-dropdown {
+            border-color: #ffc107;
+            color: #856404;
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2);
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .hospital-selector.success .hospital-dropdown {
+            border-color: #27ae60;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .dropdown-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #5a6c7d;
+        }
+        
+        /* ドロップダウンリスト */
+        .hospital-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #27ae60;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            display: none;
+        }
+        
+        .hospital-dropdown-list.active {
+            display: block;
+        }
+        
+        .dropdown-search {
+            padding: 12px;
+            border-bottom: 1px solid #e1e8ed;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .dropdown-group-title {
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: #f0fdf4;
+            color: #27ae60;
+        }
+        
+        .dropdown-item.selected {
+            background: #f0fdf4;
+            color: #27ae60;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .dropdown-item.selected::after {
+            content: '✓';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .hospital-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .hospital-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .hospital-location {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .dropdown-item:hover .hospital-location {
+            color: #27ae60;
+            opacity: 0.7;
+        }
+        
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        /* ナビゲーションメニュー */
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        
+        .nav-menu.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .nav-menu.disabled #systemManagementGroup {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .nav-group {
+            margin-bottom: 24px;
+        }
+        
+        .nav-group-title {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px;
+            margin-bottom: 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #5a6c7d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(39, 174, 96, 0.1) 0%, transparent 100%);
+            color: #27ae60;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #27ae60;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 4px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: #27ae60;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        /* メインコンテンツ */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: white;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+        
+        .mobile-menu-button {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .menu-icon {
+            width: 20px;
+            height: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .menu-icon span {
+            height: 2px;
+            background: #5a6c7d;
+            border-radius: 1px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .page-title.disabled {
+            color: #94a3b8;
+        }
+        
+        /* ヘッダーアクション */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        /* データ同期ボタン */
+        .sync-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            color: #27ae60;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        
+        .sync-button:hover {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .sync-icon {
+            font-size: 16px;
+        }
+        
+        .sync-badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* ユーザーメニュー */
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-icon:hover {
+            border-color: #27ae60;
+            background: #f0fdf4;
+        }
+        
+        .user-avatar {
+            font-size: 20px;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 240px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .user-dropdown-header {
+            padding: 16px;
+            background: #fafbfc;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background: #e1e8ed;
+        }
+        
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #5a6c7d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .user-dropdown-item:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        
+        .user-dropdown-item:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .dropdown-icon {
+            font-size: 16px;
+        }
+        
+        /* ダッシュボード */
+        .dashboard {
+            flex: 1;
+            padding: 40px 32px;
+            overflow-y: auto;
+        }
+        
+        .alert-section {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 8px 24px rgba(255, 193, 7, 0.15);
+        }
+        
+        .alert-section.hidden {
+            display: none;
+        }
+        
+        .alert-icon {
+            width: 64px;
+            height: 64px;
+            background: #ffc107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .alert-content h2 {
+            font-size: 24px;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .alert-content p {
+            font-size: 16px;
+            color: #856404;
+            opacity: 0.9;
+        }
+        
+        .welcome-card {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+            display: none;
+        }
+        
+        .welcome-card.active {
+            display: block;
+        }
+        
+        .welcome-card h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-card p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* アクションカード */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            text-decoration: none;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .action-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .action-card:not(.disabled):hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        .lock-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #e1e8ed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lock-icon {
+            width: 20px;
+            height: 20px;
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdbb 100%);
+            border-radius: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .action-card.disabled .action-icon {
+            background: #e1e8ed;
+            filter: grayscale(100%);
+        }
+        
+        .action-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .action-card.disabled .action-title {
+            color: #94a3b8;
+        }
+        
+        .action-description {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .action-card.disabled .action-description {
+            color: #cbd5e1;
+        }
+        
+        /* ボトムナビゲーション（モバイル用） */
+        .bottom-nav {
+            display: none;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            padding: 8px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: #5a6c7d;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .bottom-nav-item.active {
+            color: #27ae60;
+        }
+        
+        .bottom-nav-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .bottom-nav-icon {
+            width: 24px;
+            height: 24px;
+            background: currentColor;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .bottom-nav-label {
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .bottom-nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 50%;
+            transform: translateX(14px);
+            background: #27ae60;
+            color: white;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            min-width: 14px;
+            text-align: center;
+        }
+        
+        /* オーバーレイ */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* レスポンシブ - タブレット */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-button {
+                display: flex;
+            }
+            
+            .header {
+                padding: 16px 24px;
+            }
+            
+            .sync-button .sync-text {
+                display: none;
+            }
+            
+            .sync-button {
+                padding: 8px 12px;
+            }
+            
+            .dashboard {
+                padding: 24px;
+                padding-bottom: 80px;
+            }
+            
+            .bottom-nav {
+                display: block;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* レスポンシブ - スマートフォン */
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 280px;
+                max-width: 85vw;
+            }
+            
+            .hospital-dropdown-list {
+                max-height: 350px;
+            }
+            
+            .dropdown-search {
+                padding: 10px;
+            }
+            
+            .search-input {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .dropdown-group-title {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+            
+            .dropdown-item {
+                padding: 10px 12px;
+            }
+            
+            .hospital-name {
+                font-size: 13px;
+            }
+            
+            .hospital-location {
+                font-size: 11px;
+            }
+            
+            .header {
+                padding: 12px 16px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+            }
+            
+            .dashboard {
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+            
+            .alert-section {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .alert-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+            
+            .alert-content h2 {
+                font-size: 18px;
+            }
+            
+            .alert-content p {
+                font-size: 14px;
+            }
+            
+            .welcome-card {
+                padding: 20px;
+            }
+            
+            .welcome-card h2 {
+                font-size: 20px;
+            }
+            
+            .welcome-card p {
+                font-size: 14px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            
+            .action-card {
+                padding: 20px;
+                min-height: 140px;
+            }
+            
+            .action-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+            
+            .action-title {
+                font-size: 14px;
+            }
+            
+            .action-description {
+                font-size: 11px;
+            }
+            
+            .lock-overlay {
+                width: 32px;
+                height: 32px;
+                top: 12px;
+                right: 12px;
+            }
+            
+            .lock-icon {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        
+        /* 調査場所入力画面 */
+        .location-input-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .location-input-screen.active {
+            display: block;
+        }
+        
+        .location-input-container {
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .location-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 32px;
+            margin-top: 20px;
+        }
+        
+        .location-form {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .location-form-group {
+            margin-bottom: 24px;
+        }
+        
+        .location-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a6c7d;
+            margin-bottom: 8px;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .readonly-field {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .category-selector {
+            position: relative;
+        }
+        
+        .category-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .category-input:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .category-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #27ae60;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .category-dropdown.active {
+            display: block;
+        }
+        
+        .category-dropdown .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-dropdown .dropdown-item:hover {
+            background: #f0fdf4;
+            color: #27ae60;
+        }
+        
+        .category-dropdown .dropdown-item.selected {
+            background: #f0fdf4;
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        .location-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .location-select:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .location-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            padding: 16px 20px;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .footer-back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            color: #5a6c7d;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-back-button:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e1;
+        }
+        
+        .footer-spacer {
+            flex: 1;
+        }
+        
+        .footer-next-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-next-button:disabled {
+            background: #e1e8ed;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .footer-next-button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .next-arrow, .back-arrow {
+            font-size: 18px;
+        }
+        
+        /* パスワード再設定画面 */
+        .password-reset-screen {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .password-reset-screen.active {
+            display: flex;
+        }
+        
+        .password-reset-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        
+        .password-reset-container .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .password-reset-container h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .reset-description {
+            color: #5a6c7d;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .reset-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .back-to-login {
+            margin-top: 24px;
+        }
+        
+        .back-to-login a {
+            color: #27ae60;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-login a:hover {
+            color: #2ecc71;
+            text-decoration: underline;
+        }
+        
+        /* マスタ管理選択画面 */
+        .master-management-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .master-management-screen.active {
+            display: block;
+        }
+        
+        .master-management-container {
+            min-height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .master-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            color: #5a6c7d;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e1;
+        }
+        
+        .master-title {
+            flex: 1;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .header-spacer {
+            width: 90px;
+        }
+        
+        .master-description {
+            text-align: center;
+            color: #5a6c7d;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .master-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .master-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+        
+        .master-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border: 2px solid #27ae60;
+            padding: 22px;
+        }
+        
+        .master-card-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdbb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .master-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .master-card-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .master-card-arrow {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        
+        .master-card:hover .master-card-arrow {
+            color: #27ae60;
+            transform: translateY(-50%) translateX(4px);
+        }
+        
+        @media (max-width: 640px) {
+            .master-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .header-spacer {
+                display: none;
+            }
+            
+            .master-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .master-card-arrow {
+                position: static;
+                transform: none;
+                margin-top: 12px;
+            }
+        }
+        
+        /* ユーザー管理画面 */
+        .user-management-screen, .asset-list-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .user-management-screen.active, .asset-list-screen.active {
+            display: block;
+        }
+        
+        .user-management-container, .asset-list-container {
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .management-header, .asset-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .management-title, .asset-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .add-user-button, .export-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-user-button:hover, .export-button:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+        
+        .management-description {
+            text-align: center;
+            color: #5a6c7d;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .asset-filters {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .asset-search {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .asset-filter {
+            padding: 10px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .user-list, .asset-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .user-list-header, .asset-list-header {
+            display: grid;
+            background: #fafbfc;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a6c7d;
+            border-bottom: 2px solid #e1e8ed;
+        }
+        
+        .user-list-header {
+            grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1.5fr;
+        }
+        
+        .asset-list-header {
+            grid-template-columns: 1fr 2fr 1.5fr 2fr 1fr 1fr;
+        }
+        
+        .user-list-item, .asset-list-item {
+            display: grid;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+        
+        .user-list-item {
+            grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1.5fr;
+        }
+        
+        .asset-list-item {
+            grid-template-columns: 1fr 2fr 1.5fr 2fr 1fr 1fr;
+        }
+        
+        .user-list-item:hover, .asset-list-item:hover {
+            background: #fafbfc;
+        }
+        
+        .user-data, .asset-data {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .status-active {
+            padding: 4px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn.edit {
+            background: #e3f2fd;
+            color: #1976d2;
+            margin-right: 8px;
+        }
+        
+        .action-btn.delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .hospital-admin-menu {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+        }
+        
+        .user-management-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .user-management-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+    </style>
+  <script src="/mock/host-bridge.js"></script>`n</head>
+<body>
+    <!-- ログインページ -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="logo">Logo</div>
+            <h1>Welcome to system</h1>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-id">メールアドレス</label>
+                    <input type="email" id="login-id" placeholder="メールアドレスを入力してください" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="パスワードを入力してください" autocomplete="current-password" required>
+                        <div class="show-password" title="パスワードを表示" onclick="togglePassword()"></div>
+                    </div>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">ログイン状態を保持する</label>
+                </div>
+                <button type="submit" class="login-button">ログイン</button>
+            </form>
+            <div class="forgot-password">
+                <a href="#" onclick="handleForgotPassword(event)">パスワードをお忘れですか？</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- メインレイアウト -->
+    <div id="mainLayout" class="main-layout">
+        <!-- オーバーレイ -->
+        <div id="overlay" class="overlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- サイドバー -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">MC</div>
+                <div class="system-name">個体管理システム</div>
+                <div class="user-role">医療コンサルタント</div>
+            </div>
+            
+            <div id="hospitalSelector" class="hospital-selector warning">
+                <div class="selector-label">⚠️ 対象病院を選択</div>
+                <div class="hospital-dropdown" onclick="toggleHospitalDropdown()">
+                    <span id="selectedHospital">病院を選択してください</span>
+                    <span class="dropdown-arrow"></span>
+                </div>
+                <div id="hospitalDropdownList" class="hospital-dropdown-list">
+                    <div class="dropdown-search">
+                        <input type="text" id="hospitalSearchInput" class="search-input" placeholder="病院名で検索..." oninput="filterHospitals(this.value)">
+                    </div>
+                    
+                    <div id="recentHospitalsSection" style="display: none;">
+                        <div class="dropdown-group-title">最近選択した病院</div>
+                        <div id="recentHospitalsList"></div>
+                    </div>
+                    
+                    <div id="allHospitalsSection">
+                        <div class="dropdown-group-title">すべての病院</div>
+                        <div id="allHospitalsList">
+                            <div class="dropdown-item" onclick="selectHospital('東京総合病院', '東京都新宿区')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">東京総合病院</span>
+                                    <span class="hospital-location">東京都新宿区</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('横浜医療センター', '神奈川県横浜市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">横浜医療センター</span>
+                                    <span class="hospital-location">神奈川県横浜市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('千葉大学病院', '千葉県千葉市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">千葉大学病院</span>
+                                    <span class="hospital-location">千葉県千葉市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('埼玉中央病院', '埼玉県さいたま市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">埼玉中央病院</span>
+                                    <span class="hospital-location">埼玉県さいたま市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('神戸市立医療センター', '兵庫県神戸市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">神戸市立医療センター</span>
+                                    <span class="hospital-location">兵庫県神戸市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('大阪総合医療センター', '大阪府大阪市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">大阪総合医療センター</span>
+                                    <span class="hospital-location">大阪府大阪市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('名古屋第一病院', '愛知県名古屋市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">名古屋第一病院</span>
+                                    <span class="hospital-location">愛知県名古屋市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('福岡中央病院', '福岡県福岡市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">福岡中央病院</span>
+                                    <span class="hospital-location">福岡県福岡市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('札幌医療センター', '北海道札幌市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">札幌医療センター</span>
+                                    <span class="hospital-location">北海道札幌市</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('仙台総合病院', '宮城県仙台市')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">仙台総合病院</span>
+                                    <span class="hospital-location">宮城県仙台市</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav id="navMenu" class="nav-menu disabled">
+                <a class="nav-item active">
+                    <span class="nav-icon"></span>
+                    <span>ホーム</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>QRコード発行</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>QRコード読み取り</span>
+                    <span class="nav-badge" id="qrBadge" style="display: none;">3</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>登録内容修正</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>台帳取込</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>データ突合</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>資産一覧</span>
+                </a>
+                <a class="nav-item" onclick="showMasterManagementScreen()">
+                    <span class="nav-icon"></span>
+                    <span>マスタ管理</span>
+                </a>
+                <a class="nav-item" onclick="showUserManagementScreen()">
+                    <span class="nav-icon"></span>
+                    <span>ユーザー管理</span>
+                </a>
+                <a class="nav-item" onclick="handleLogout()">
+                    <span class="nav-icon"></span>
+                    <span>ログアウト</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="mobile-menu-button" onclick="toggleMobileMenu()">
+                        <div class="menu-icon">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </button>
+                    <h1 id="pageTitle" class="page-title">ダッシュボード</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="syncButton" class="sync-button" onclick="handleDataSync()" style="display: none;">
+                        <span class="sync-icon">🔄</span>
+                        <span class="sync-text">データ同期</span>
+                        <span class="sync-badge">3</span>
+                    </button>
+                    <div class="user-menu">
+                        <button class="user-icon" onclick="toggleUserMenu()">
+                            <span class="user-avatar">👤</span>
+                        </button>
+                        <div id="userDropdown" class="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-info">
+                                    <span class="user-name">医療コンサルタント</span>
+                                    <span class="user-email">user@medical.com</span>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="#" class="user-dropdown-item" onclick="handleProfile(event)">
+                                <span class="dropdown-icon">⚙️</span>
+                                <span>アカウント設定</span>
+                            </a>
+                            <a href="#" class="user-dropdown-item" onclick="handleLogout()">
+                                <span class="dropdown-icon">🚪</span>
+                                <span>ログアウト</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard">
+                <!-- 警告セクション -->
+                <div id="alertSection" class="alert-section">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">
+                        <h2>病院が選択されていません</h2>
+                        <p>QRコード管理・データ管理・分析機能を使用するには、まず作業対象となる病院を選択してください。<br>マスタ管理は病院選択なしで利用可能です。</p>
+                    </div>
+                </div>
+                
+                <!-- ウェルカムカード -->
+                <div id="welcomeCard" class="welcome-card">
+                    <h2>東京総合病院の個体管理</h2>
+                    <p>機器管理システムへようこそ。すべての機能が利用可能です。</p>
+                </div>
+                
+                <!-- アクションカード -->
+                <div class="quick-actions">
+                    <div id="card1" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">📱</div>
+                        <div class="action-title">QRコード発行</div>
+                        <div class="action-description">新規QRコードを発行</div>
+                    </div>
+                    
+                    <div id="card2" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">📷</div>
+                        <div class="action-title">QRコード読み取り</div>
+                        <div class="action-description">機器情報を登録</div>
+                    </div>
+                    
+                    <div id="card3" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">✏️</div>
+                        <div class="action-title">登録内容修正</div>
+                        <div class="action-description">情報の確認・修正</div>
+                    </div>
+                    
+                    <div id="card4" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">📊</div>
+                        <div class="action-title">台帳取込</div>
+                        <div class="action-description">Excelデータをインポート</div>
+                    </div>
+                    
+                    <div id="card5" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">🤖</div>
+                        <div class="action-title">データ突合</div>
+                        <div class="action-description">AIによる自動突合</div>
+                    </div>
+                    
+                    <div id="card6" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">📋</div>
+                        <div class="action-title">資産一覧</div>
+                        <div class="action-description">病院の資産を確認</div>
+                    </div>
+                    
+                    <div id="card7" class="action-card">
+                        <div class="action-icon">⚙️</div>
+                        <div class="action-title">マスタ管理</div>
+                        <div class="action-description">各種マスタの設定</div>
+                    </div>
+                    
+                    <div id="card8" class="action-card">
+                        <div class="action-icon">👥</div>
+                        <div class="action-title">ユーザー管理</div>
+                        <div class="action-description">コンサルユーザーの管理</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- ボトムナビゲーション -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a id="bottomNavHome" class="bottom-nav-item active">
+                    <span class="bottom-nav-icon"></span>
+                    <span class="bottom-nav-label">ホーム</span>
+                </a>
+                <a id="bottomNavQR" class="bottom-nav-item disabled">
+                    <span class="bottom-nav-icon"></span>
+                    <span class="bottom-nav-label">QR読取</span>
+                    <span class="bottom-nav-badge" id="bottomQrBadge" style="display: none;">3</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- 調査場所入力画面 -->
+    <div id="locationInputScreen" class="location-input-screen">
+        <div class="location-input-container">
+            <h2 class="location-title">調査場所入力</h2>
+            
+            <form id="locationForm" class="location-form">
+                <!-- 調査日 -->
+                <div class="location-form-group">
+                    <label>調査日</label>
+                    <div class="readonly-field">
+                        <span id="surveyDate"></span>
+                    </div>
+                </div>
+                
+                <!-- Category -->
+                <div class="location-form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <div class="category-selector">
+                        <input type="text" id="categoryInput" class="category-input" placeholder="Categoryを検索または選択..." autocomplete="off">
+                        <div id="categoryDropdown" class="category-dropdown">
+                            <div class="dropdown-item" data-value="医療機器">医療機器</div>
+                            <div class="dropdown-item" data-value="什器備品">什器備品</div>
+                            <div class="dropdown-item" data-value="設備機器">設備機器</div>
+                            <div class="dropdown-item" data-value="情報機器">情報機器</div>
+                            <div class="dropdown-item" data-value="事務機器">事務機器</div>
+                            <div class="dropdown-item" data-value="その他">その他</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 棟 -->
+                <div class="location-form-group">
+                    <label>棟 <span class="required">*</span></label>
+                    <select id="buildingSelect" class="location-select" required>
+                        <option value="">選択してください</option>
+                        <option value="本館">本館</option>
+                        <option value="東棟">東棟</option>
+                        <option value="西棟">西棟</option>
+                        <option value="南棟">南棟</option>
+                        <option value="北棟">北棟</option>
+                        <option value="別館">別館</option>
+                    </select>
+                </div>
+                
+                <!-- 階 -->
+                <div class="location-form-group">
+                    <label>階 <span class="required">*</span></label>
+                    <select id="floorSelect" class="location-select" required>
+                        <option value="">選択してください</option>
+                        <option value="B2F">B2F</option>
+                        <option value="B1F">B1F</option>
+                        <option value="1F">1F</option>
+                        <option value="2F">2F</option>
+                        <option value="3F">3F</option>
+                        <option value="4F">4F</option>
+                        <option value="5F">5F</option>
+                        <option value="6F">6F</option>
+                        <option value="7F">7F</option>
+                        <option value="8F">8F</option>
+                        <option value="RF">RF</option>
+                    </select>
+                </div>
+                
+                <!-- 部門 -->
+                <div class="location-form-group">
+                    <label>部門 <span class="required">*</span></label>
+                    <select id="departmentSelect" class="location-select" required>
+                        <option value="">選択してください</option>
+                        <option value="診療部">診療部</option>
+                        <option value="看護部">看護部</option>
+                        <option value="医療技術部">医療技術部</option>
+                        <option value="事務部">事務部</option>
+                        <option value="薬剤部">薬剤部</option>
+                    </select>
+                </div>
+                
+                <!-- 部署 -->
+                <div class="location-form-group">
+                    <label>部署 <span class="required">*</span></label>
+                    <select id="sectionSelect" class="location-select" required>
+                        <option value="">選択してください</option>
+                        <option value="内科">内科</option>
+                        <option value="外科">外科</option>
+                        <option value="整形外科">整形外科</option>
+                        <option value="小児科">小児科</option>
+                        <option value="産婦人科">産婦人科</option>
+                        <option value="放射線科">放射線科</option>
+                        <option value="ICU">ICU</option>
+                        <option value="手術室">手術室</option>
+                        <option value="外来">外来</option>
+                        <option value="病棟">病棟</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        
+        <!-- フッター（戻る・次へボタン） -->
+        <div class="location-footer">
+            <button class="footer-back-button" onclick="hideLocationInputScreen()">
+                <span class="back-arrow">←</span>
+                <span>戻る</span>
+            </button>
+            <div class="footer-spacer"></div>
+            <button id="nextButton" class="footer-next-button" onclick="handleNext()" disabled>
+                <span>次へ</span>
+                <span class="next-arrow">→</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- パスワード再設定画面 -->
+    <div id="passwordResetScreen" class="password-reset-screen">
+        <div class="password-reset-container">
+            <div class="logo">Logo</div>
+            <h1>パスワード再設定</h1>
+            <p class="reset-description">
+                登録済みのメールアドレスを入力してください。<br>
+                パスワード再設定用のURLをお送りします。
+            </p>
+            
+            <form onsubmit="handlePasswordReset(event)">
+                <div class="form-group">
+                    <label for="reset-email">メールアドレス</label>
+                    <input type="email" id="reset-email" placeholder="example@medical.com" required>
+                </div>
+                
+                <button type="submit" class="reset-button">送信</button>
+            </form>
+            
+            <div class="back-to-login">
+                <a href="#" onclick="backToLogin(event)">ログイン画面に戻る</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- マスタ管理選択画面 -->
+    <div id="masterManagementScreen" class="master-management-screen">
+        <div class="master-management-container">
+            <div class="master-header">
+                <button class="back-button" onclick="hideMasterManagementScreen()">
+                    <span>←</span>
+                    <span>戻る</span>
+                </button>
+                <h2 class="master-title">マスタ管理</h2>
+                <div class="header-spacer"></div>
+            </div>
+            
+            <div class="master-description">
+                管理するマスタを選択してください
+            </div>
+            
+            <div class="master-cards">
+                <div class="master-card" onclick="handleMasterSelect('施設マスタ')">
+                    <div class="master-card-icon">🏢</div>
+                    <div class="master-card-title">施設マスタ管理</div>
+                    <div class="master-card-description">
+                        病院の施設情報（棟・階・部門・部署）を管理
+                    </div>
+                    <div class="master-card-arrow">→</div>
+                </div>
+                
+                <div class="master-card" onclick="handleMasterSelect('資産マスタ')">
+                    <div class="master-card-icon">📦</div>
+                    <div class="master-card-title">資産マスタ管理</div>
+                    <div class="master-card-description">
+                        資産カテゴリーや分類情報を管理
+                    </div>
+                    <div class="master-card-arrow">→</div>
+                </div>
+                
+                <div class="master-card" onclick="handleMasterSelect('作業マスタ')">
+                    <div class="master-card-icon">🔧</div>
+                    <div class="master-card-title">作業マスタ管理</div>
+                    <div class="master-card-description">
+                        作業種別や作業内容の定義を管理
+                    </div>
+                    <div class="master-card-arrow">→</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ユーザー管理画面（コンサル用） -->
+    <div id="userManagementScreen" class="user-management-screen">
+        <div class="user-management-container">
+            <div class="management-header">
+                <button class="back-button" onclick="hideUserManagementScreen()">
+                    <span>←</span>
+                    <span>戻る</span>
+                </button>
+                <h2 class="management-title">ユーザー管理</h2>
+                <button class="add-user-button" onclick="handleAddUser()">
+                    <span>+</span>
+                    <span>新規登録</span>
+                </button>
+            </div>
+            
+            <div class="management-description">
+                医療コンサルユーザーの管理
+            </div>
+            
+            <div class="user-list">
+                <div class="user-list-header">
+                    <div class="user-header-item">ユーザーID</div>
+                    <div class="user-header-item">氏名</div>
+                    <div class="user-header-item">メールアドレス</div>
+                    <div class="user-header-item">権限</div>
+                    <div class="user-header-item">状態</div>
+                    <div class="user-header-item">操作</div>
+                </div>
+                
+                <div class="user-list-item">
+                    <div class="user-data">consul001</div>
+                    <div class="user-data">田中 太郎</div>
+                    <div class="user-data">tanaka@medical.com</div>
+                    <div class="user-data">管理者</div>
+                    <div class="user-data"><span class="status-active">有効</span></div>
+                    <div class="user-data">
+                        <button class="action-btn edit" onclick="handleEditUser('consul001')">編集</button>
+                        <button class="action-btn delete" onclick="handleDeleteUser('consul001')">削除</button>
+                    </div>
+                </div>
+                
+                <div class="user-list-item">
+                    <div class="user-data">consul002</div>
+                    <div class="user-data">佐藤 花子</div>
+                    <div class="user-data">sato@medical.com</div>
+                    <div class="user-data">一般</div>
+                    <div class="user-data"><span class="status-active">有効</span></div>
+                    <div class="user-data">
+                        <button class="action-btn edit" onclick="handleEditUser('consul002')">編集</button>
+                        <button class="action-btn delete" onclick="handleDeleteUser('consul002')">削除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 資産一覧画面 -->
+    <div id="assetListScreen" class="asset-list-screen">
+        <div class="asset-list-container">
+            <div class="asset-header">
+                <button class="back-button" onclick="hideAssetListScreen()">
+                    <span>←</span>
+                    <span id="assetBackButtonText">戻る</span>
+                </button>
+                <h2 class="asset-title">資産一覧 - <span id="hospitalNameInAsset">東京総合病院</span></h2>
+                <div class="asset-actions">
+                    <button class="export-button" onclick="handleExport()">
+                        <span>📥</span>
+                        <span>エクスポート</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="asset-filters">
+                <input type="text" class="asset-search" placeholder="資産名・管理番号で検索...">
+                <select class="asset-filter">
+                    <option value="">カテゴリー：すべて</option>
+                    <option value="medical">医療機器</option>
+                    <option value="furniture">什器備品</option>
+                    <option value="facility">設備機器</option>
+                </select>
+                <select class="asset-filter">
+                    <option value="">状態：すべて</option>
+                    <option value="active">使用中</option>
+                    <option value="maintenance">メンテナンス中</option>
+                    <option value="disposed">廃棄済み</option>
+                </select>
+            </div>
+            
+            <div class="asset-list">
+                <div class="asset-list-header">
+                    <div class="asset-header-item">管理番号</div>
+                    <div class="asset-header-item">資産名</div>
+                    <div class="asset-header-item">カテゴリー</div>
+                    <div class="asset-header-item">設置場所</div>
+                    <div class="asset-header-item">取得日</div>
+                    <div class="asset-header-item">状態</div>
+                </div>
+                
+                <div class="asset-list-item">
+                    <div class="asset-data">MED-001</div>
+                    <div class="asset-data">超音波診断装置</div>
+                    <div class="asset-data">医療機器</div>
+                    <div class="asset-data">本館3F 検査室</div>
+                    <div class="asset-data">2023/04/01</div>
+                    <div class="asset-data"><span class="status-active">使用中</span></div>
+                </div>
+                
+                <div class="asset-list-item">
+                    <div class="asset-data">MED-002</div>
+                    <div class="asset-data">心電図モニター</div>
+                    <div class="asset-data">医療機器</div>
+                    <div class="asset-data">本館5F ICU</div>
+                    <div class="asset-data">2022/10/15</div>
+                    <div class="asset-data"><span class="status-active">使用中</span></div>
+                </div>
+            </div>
+            
+            <!-- 病院管理者用のユーザー管理ボタン -->
+            <div class="hospital-admin-menu">
+                <button class="user-management-btn" onclick="showHospitalUserManagement()">
+                    <span>👥</span>
+                    <span>病院ユーザー管理</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 状態管理
+        let isLoggedIn = false;
+        let selectedHospitalName = null;
+        let isMobileMenuOpen = false;
+        let recentHospitals = [];
+        
+        // 全病院リスト
+        const allHospitals = [
+            { name: '東京総合病院', location: '東京都新宿区' },
+            { name: '横浜医療センター', location: '神奈川県横浜市' },
+            { name: '千葉大学病院', location: '千葉県千葉市' },
+            { name: '埼玉中央病院', location: '埼玉県さいたま市' },
+            { name: '神戸市立医療センター', location: '兵庫県神戸市' },
+            { name: '大阪総合医療センター', location: '大阪府大阪市' },
+            { name: '名古屋第一病院', location: '愛知県名古屋市' },
+            { name: '福岡中央病院', location: '福岡県福岡市' },
+            { name: '札幌医療センター', location: '北海道札幌市' },
+            { name: '仙台総合病院', location: '宮城県仙台市' }
+        ];
+        
+        // localStorage から最近選択した病院を読み込み
+        function loadRecentHospitals() {
+            const stored = localStorage.getItem('recentHospitals');
+            if (stored) {
+                recentHospitals = JSON.parse(stored);
+                updateRecentHospitalsList();
+            }
+        }
+        
+        // 最近選択した病院リストを更新
+        function updateRecentHospitalsList() {
+            const recentSection = document.getElementById('recentHospitalsSection');
+            const recentList = document.getElementById('recentHospitalsList');
+            
+            if (recentHospitals.length > 0) {
+                recentSection.style.display = 'block';
+                recentList.innerHTML = recentHospitals.map(hospital => `
+                    <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                         onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                        <div class="hospital-info">
+                            <span class="hospital-name">${hospital.name}</span>
+                            <span class="hospital-location">${hospital.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                recentSection.style.display = 'none';
+            }
+        }
+        
+        // 病院検索フィルター
+        function filterHospitals(searchTerm) {
+            const normalizedSearch = searchTerm.toLowerCase().trim();
+            const allHospitalsList = document.getElementById('allHospitalsList');
+            
+            if (normalizedSearch === '') {
+                // 検索語が空の場合、すべての病院を表示
+                allHospitalsList.innerHTML = allHospitals.map(hospital => `
+                    <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                         onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                        <div class="hospital-info">
+                            <span class="hospital-name">${hospital.name}</span>
+                            <span class="hospital-location">${hospital.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // あいまい検索
+                const filteredHospitals = allHospitals.filter(hospital => 
+                    hospital.name.toLowerCase().includes(normalizedSearch) ||
+                    hospital.location.toLowerCase().includes(normalizedSearch)
+                );
+                
+                if (filteredHospitals.length > 0) {
+                    allHospitalsList.innerHTML = filteredHospitals.map(hospital => `
+                        <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                             onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                            <div class="hospital-info">
+                                <span class="hospital-name">${hospital.name}</span>
+                                <span class="hospital-location">${hospital.location}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    allHospitalsList.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
+                }
+            }
+            
+            // 最近選択した病院もフィルタリング
+            if (recentHospitals.length > 0) {
+                const filteredRecent = recentHospitals.filter(hospital =>
+                    hospital.name.toLowerCase().includes(normalizedSearch) ||
+                    hospital.location.toLowerCase().includes(normalizedSearch)
+                );
+                
+                const recentSection = document.getElementById('recentHospitalsSection');
+                const recentList = document.getElementById('recentHospitalsList');
+                
+                if (filteredRecent.length > 0) {
+                    recentSection.style.display = 'block';
+                    recentList.innerHTML = filteredRecent.map(hospital => `
+                        <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                             onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                            <div class="hospital-info">
+                                <span class="hospital-name">${hospital.name}</span>
+                                <span class="hospital-location">${hospital.location}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else if (normalizedSearch !== '') {
+                    recentSection.style.display = 'none';
+                }
+            }
+        }
+        
+        // ログイン処理
+        function handleLogin(event) {
+            event.preventDefault();
+            const loginId = document.getElementById('login-id').value;
+            isLoggedIn = true;
+            
+            // メールアドレスのドメインでユーザー種別を判定
+            if (loginId.includes('@hospital')) {
+                // 病院ユーザーの場合（@hospitalドメイン）
+                document.getElementById('loginPage').style.display = 'none';
+                // 病院名を仮設定（実際は病院ユーザーに紐づく病院名を設定）
+                selectedHospitalName = '東京総合病院';
+                showAssetListScreen();
+            } else {
+                // コンサルユーザーの場合
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainLayout').classList.add('active');
+            }
+        }
+        
+        // パスワードリセット処理
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('passwordResetScreen').classList.add('active');
+        }
+        
+        // パスワード再設定メール送信処理
+        function handlePasswordReset(event) {
+            event.preventDefault();
+            const email = document.getElementById('reset-email').value;
+            alert(`パスワード再設定用のURLを ${email} に送信しました。\nメールをご確認ください。`);
+            backToLogin(event);
+        }
+        
+        // ログイン画面に戻る
+        function backToLogin(event) {
+            event.preventDefault();
+            document.getElementById('passwordResetScreen').classList.remove('active');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('reset-email').value = '';
+        }
+        
+        // パスワード表示/非表示切り替え
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const showPasswordBtn = document.querySelector('.show-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showPasswordBtn.style.background = '#27ae60';
+            } else {
+                passwordInput.type = 'password';
+                showPasswordBtn.style.background = '#e1e8ed';
+            }
+        }
+        
+        // ユーザーメニューの開閉
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('active');
+        }
+        
+        // プロフィール設定
+        function handleProfile(event) {
+            event.preventDefault();
+            alert('アカウント設定は開発中です');
+            document.getElementById('userDropdown').classList.remove('active');
+        }
+        
+        // データ同期処理
+        function handleDataSync() {
+            const button = document.getElementById('syncButton');
+            const icon = button.querySelector('.sync-icon');
+            const badge = button.querySelector('.sync-badge');
+            
+            // 回転アニメーション
+            icon.style.display = 'inline-block';
+            icon.style.animation = 'spin 1s linear';
+            
+            setTimeout(() => {
+                alert('3件のQRコード読み取りデータを同期しました');
+                badge.style.display = 'none';
+                icon.style.animation = '';
+                button.style.display = 'none';
+            }, 1000);
+        }
+        
+        // ログアウト処理
+        function handleLogout() {
+            isLoggedIn = false;
+            selectedHospitalName = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainLayout').classList.remove('active');
+            resetHospitalSelection();
+        }
+        
+        // 病院選択ドロップダウンの開閉
+        function toggleHospitalDropdown() {
+            const dropdown = document.getElementById('hospitalDropdownList');
+            const overlay = document.getElementById('overlay');
+            
+            if (dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                dropdown.classList.add('active');
+                overlay.classList.add('active');
+                // ドロップダウンを開いたときに最近の病院リストを更新
+                updateRecentHospitalsList();
+                // 検索フィールドにフォーカス
+                setTimeout(() => {
+                    document.getElementById('hospitalSearchInput').focus();
+                }, 100);
+            }
+        }
+        
+        // 病院選択
+        function selectHospital(hospitalName, hospitalLocation) {
+            selectedHospitalName = hospitalName;
+            
+            // 最近選択した病院リストに追加
+            const hospital = { name: hospitalName, location: hospitalLocation };
+            recentHospitals = recentHospitals.filter(h => h.name !== hospitalName);
+            recentHospitals.unshift(hospital);
+            if (recentHospitals.length > 3) {
+                recentHospitals = recentHospitals.slice(0, 3);
+            }
+            localStorage.setItem('recentHospitals', JSON.stringify(recentHospitals));
+            
+            // ドロップダウンを閉じる
+            document.getElementById('hospitalDropdownList').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            
+            // 検索フィールドをクリア
+            document.getElementById('hospitalSearchInput').value = '';
+            
+            // 選択された病院名を表示
+            document.getElementById('selectedHospital').textContent = hospitalName;
+            
+            // 病院セレクターのスタイルを変更
+            const selector = document.getElementById('hospitalSelector');
+            selector.classList.remove('warning');
+            selector.classList.add('success');
+            selector.querySelector('.selector-label').innerHTML = '✓ 対象病院（選択済み）';
+            
+            // ナビゲーションメニューを有効化（マスタ管理以外）
+            document.getElementById('navMenu').classList.remove('disabled');
+            
+            // 警告を非表示、ウェルカムカードを表示
+            document.getElementById('alertSection').classList.add('hidden');
+            const welcomeCard = document.getElementById('welcomeCard');
+            welcomeCard.classList.add('active');
+            welcomeCard.querySelector('h2').textContent = `${hospitalName}の個体管理`;
+            
+            // アクションカードを有効化（マスタ管理以外）
+            for (let i = 1; i <= 6; i++) {
+                const card = document.getElementById(`card${i}`);
+                card.classList.remove('disabled');
+                const lockOverlay = card.querySelector('.lock-overlay');
+                if (lockOverlay) {
+                    lockOverlay.style.display = 'none';
+                }
+            }
+            
+            // バッジを表示
+            document.getElementById('qrBadge').style.display = 'inline-block';
+            document.getElementById('bottomQrBadge').style.display = 'inline-block';
+            
+            // 同期ボタンを表示（オフラインデータがある場合）
+            document.getElementById('syncButton').style.display = 'flex';
+            
+            // ボトムナビゲーションを有効化
+            document.getElementById('bottomNavQR').classList.remove('disabled');
+        }
+        
+        // 病院選択をリセット
+        function resetHospitalSelection() {
+            selectedHospitalName = null;
+            
+            document.getElementById('selectedHospital').textContent = '病院を選択してください';
+            document.getElementById('hospitalSearchInput').value = '';
+            
+            // 病院リストを初期状態に戻す
+            filterHospitals('');
+            updateRecentHospitalsList();
+            
+            const selector = document.getElementById('hospitalSelector');
+            selector.classList.remove('success');
+            selector.classList.add('warning');
+            selector.querySelector('.selector-label').innerHTML = '⚠️ 対象病院を選択';
+            
+            document.getElementById('navMenu').classList.add('disabled');
+            
+            document.getElementById('alertSection').classList.remove('hidden');
+            document.getElementById('welcomeCard').classList.remove('active');
+            
+            for (let i = 1; i <= 6; i++) {
+                const card = document.getElementById(`card${i}`);
+                card.classList.add('disabled');
+                const lockOverlay = card.querySelector('.lock-overlay');
+                if (lockOverlay) {
+                    lockOverlay.style.display = 'flex';
+                }
+            }
+            
+            document.getElementById('qrBadge').style.display = 'none';
+            document.getElementById('bottomQrBadge').style.display = 'none';
+            document.getElementById('syncButton').style.display = 'none';
+            document.getElementById('bottomNavQR').classList.add('disabled');
+        }
+        
+        // モバイルメニューの開閉
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                isMobileMenuOpen = false;
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                isMobileMenuOpen = true;
+            }
+        }
+        
+        // モバイルメニューを閉じる
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const dropdown = document.getElementById('hospitalDropdownList');
+            
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            dropdown.classList.remove('active');
+            isMobileMenuOpen = false;
+        }
+        
+        // ウィンドウリサイズ時の処理
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024 && isMobileMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+        
+        document.addEventListener('click', function(event) {
+            if (!isMobileMenuOpen) return;
+            const sidebar = document.getElementById('sidebar');
+            const menuButton = document.querySelector('.mobile-menu-button');
+            const overlay = document.getElementById('overlay');
+            const target = event.target;
+            if (overlay && overlay.contains(target)) return;
+            if (sidebar && sidebar.contains(target)) return;
+            if (menuButton && menuButton.contains(target)) return;
+            closeMobileMenu();
+        }, true);
+
+        // ナビゲーションアイテムのクリック処理
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (!item.onclick) {
+                item.addEventListener('click', function() {
+                    const itemText = this.querySelector('span:last-child').textContent;
+                    const navMenu = document.getElementById('navMenu');
+                    const isDisabled = navMenu.classList.contains('disabled');
+                    
+                    // マスタ管理は常に有効、その他は病院選択時のみ
+                    if (itemText === 'マスタ管理' || !isDisabled) {
+                        document.querySelectorAll('.nav-item').forEach(navItem => {
+                            navItem.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // 機能別の処理
+                        if (itemText === 'QRコード読み取り') {
+                            showLocationInputScreen();
+                        } else if (itemText === '資産一覧') {
+                            showAssetListScreen();
+                        } else if (itemText === 'ユーザー管理') {
+                            showUserManagementScreen();
+                        }
+                        
+                        // モバイルの場合はメニューを閉じる
+                        if (window.innerWidth <= 1024) {
+                            closeMobileMenu();
+                        }
+                    }
+                });
+            }
+        });
+        
+        // アクションカードのクリック処理
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    const cardTitle = this.querySelector('.action-title').textContent;
+                    if (cardTitle === 'QRコード読み取り') {
+                        showLocationInputScreen();
+                    } else if (cardTitle === '資産一覧') {
+                        showAssetListScreen();
+                    } else if (cardTitle === 'マスタ管理') {
+                        showMasterManagementScreen();
+                    } else if (cardTitle === 'ユーザー管理') {
+                        showUserManagementScreen();
+                    } else {
+                        alert('この機能は開発中です');
+                    }
+                }
+            });
+        });
+        
+        // ボトムナビゲーションのクリック処理
+        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!this.classList.contains('disabled')) {
+                    e.preventDefault();
+                    if (this.id === 'bottomNavQR') {
+                        showLocationInputScreen();
+                    } else {
+                        document.querySelectorAll('.bottom-nav-item').forEach(navItem => {
+                            navItem.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    }
+                }
+            });
+        });
+        
+        // ページロード時に最近の病院リストを読み込み
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecentHospitals();
+        });
+        
+        // ドキュメントクリック時にメニューを閉じる
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (!userMenu.contains(event.target) && userDropdown.classList.contains('active')) {
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        // 調査場所入力画面を表示
+        function showLocationInputScreen() {
+            document.getElementById('locationInputScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+            
+            // 今日の日付を設定
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}年${(today.getMonth() + 1)}月${today.getDate()}日`;
+            document.getElementById('surveyDate').textContent = dateStr;
+            
+            // Categoryの入力フィールドイベント設定
+            setupCategoryInput();
+            
+            // フォームの変更を監視
+            setupFormValidation();
+        }
+        
+        // 調査場所入力画面を非表示
+        function hideLocationInputScreen() {
+            document.getElementById('locationInputScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // Categoryの入力設定
+        function setupCategoryInput() {
+            const input = document.getElementById('categoryInput');
+            const dropdown = document.getElementById('categoryDropdown');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            
+            // 入力フィールドフォーカス時
+            input.addEventListener('focus', function() {
+                dropdown.classList.add('active');
+            });
+            
+            // 入力フィールドの値変更時（あいまい検索）
+            input.addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+                let hasVisibleItem = false;
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchValue)) {
+                        item.style.display = 'block';
+                        hasVisibleItem = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                dropdown.classList.toggle('active', hasVisibleItem);
+            });
+            
+            // ドロップダウンアイテムクリック時
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    input.value = this.textContent;
+                    dropdown.classList.remove('active');
+                    validateForm();
+                });
+            });
+            
+            // 外側クリック時にドロップダウンを閉じる
+            document.addEventListener('click', function(event) {
+                if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+        
+        // フォームバリデーション設定
+        function setupFormValidation() {
+            const form = document.getElementById('locationForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('change', validateForm);
+                input.addEventListener('input', validateForm);
+            });
+        }
+        
+        // フォームバリデーション
+        function validateForm() {
+            const categoryInput = document.getElementById('categoryInput').value;
+            const buildingSelect = document.getElementById('buildingSelect').value;
+            const floorSelect = document.getElementById('floorSelect').value;
+            const departmentSelect = document.getElementById('departmentSelect').value;
+            const sectionSelect = document.getElementById('sectionSelect').value;
+            const nextButton = document.getElementById('nextButton');
+            
+            // すべての必須項目が入力されているかチェック
+            const isValid = categoryInput && buildingSelect && floorSelect && departmentSelect && sectionSelect;
+            
+            nextButton.disabled = !isValid;
+        }
+        
+        // 次へボタンクリック処理
+        function handleNext() {
+            const formData = {
+                surveyDate: document.getElementById('surveyDate').textContent,
+                category: document.getElementById('categoryInput').value,
+                building: document.getElementById('buildingSelect').value,
+                floor: document.getElementById('floorSelect').value,
+                department: document.getElementById('departmentSelect').value,
+                section: document.getElementById('sectionSelect').value
+            };
+            
+            console.log('調査場所データ:', formData);
+            alert('QRコード読取画面へ遷移します（開発中）\n\n入力データ:\n' + JSON.stringify(formData, null, 2));
+        }
+        
+        // マスタ管理選択画面を表示
+        function showMasterManagementScreen() {
+            document.getElementById('masterManagementScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+        }
+        
+        // マスタ管理選択画面を非表示
+        function hideMasterManagementScreen() {
+            document.getElementById('masterManagementScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // マスタ選択処理
+        function handleMasterSelect(masterType) {
+            alert(`${masterType}管理画面へ遷移します（開発中）`);
+        }
+        
+        // ユーザー管理画面を表示
+        function showUserManagementScreen() {
+            document.getElementById('userManagementScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+        }
+        
+        // ユーザー管理画面を非表示
+        function hideUserManagementScreen() {
+            document.getElementById('userManagementScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // 資産一覧画面を表示
+        function showAssetListScreen() {
+            const loginId = document.getElementById('login-id').value;
+            const hospitalName = selectedHospitalName || '東京総合病院';
+            document.getElementById('hospitalNameInAsset').textContent = hospitalName;
+            
+            // 病院ユーザーの場合は戻るボタンを「ログアウト」に変更
+            if (loginId.includes('@hospital')) {
+                document.getElementById('assetBackButtonText').textContent = 'ログアウト';
+            } else {
+                document.getElementById('assetBackButtonText').textContent = '戻る';
+            }
+            
+            document.getElementById('assetListScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+            document.getElementById('mainLayout').classList.remove('active');
+        }
+        
+        // 資産一覧画面を非表示
+        function hideAssetListScreen() {
+            const loginId = document.getElementById('login-id').value;
+            document.getElementById('assetListScreen').classList.remove('active');
+            
+            // 病院ユーザーの場合は戻るボタンでログアウト
+            if (loginId.includes('@hospital')) {
+                // ログアウト処理
+                isLoggedIn = false;
+                selectedHospitalName = null;
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('login-id').value = '';
+                document.getElementById('password').value = '';
+                alert('ログアウトしました');
+            } else {
+                // コンサルユーザーの場合はメニュー画面に戻る
+                document.getElementById('mainLayout').style.display = 'flex';
+                document.getElementById('mainLayout').classList.add('active');
+            }
+        }
+        
+        // ユーザー管理関連の処理
+        function handleAddUser() {
+            alert('新規ユーザー登録画面へ遷移します（開発中）');
+        }
+        
+        function handleEditUser(userId) {
+            alert(`ユーザー ${userId} の編集画面へ遷移します（開発中）`);
+        }
+        
+        function handleDeleteUser(userId) {
+            if (confirm(`ユーザー ${userId} を削除してよろしいですか？`)) {
+                alert('ユーザーを削除しました（シミュレーション）');
+            }
+        }
+        
+        // 資産一覧関連の処理
+        function handleExport() {
+            alert('資産一覧をエクスポートします（開発中）');
+        }
+        
+        function showHospitalUserManagement() {
+            alert('病院ユーザー管理画面へ遷移します（開発中）');
+        }
+    </script>
+</body>
+</html>

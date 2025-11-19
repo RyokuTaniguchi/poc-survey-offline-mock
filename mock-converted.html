@@ -1,0 +1,3032 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蛹ｻ逋ゅさ繝ｳ繧ｵ繝ｫ邂｡逅・す繧ｹ繝・Β</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        /* 繝壹・繧ｸ繧ｳ繝ｳ繝・リ */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 繝ｭ繧ｰ繧､繝ｳ繝壹・繧ｸ */
+        .login-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .login-container h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #5a6c7d;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #27ae60;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .show-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: #e1e8ed;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .show-password:hover {
+            background: #cbd5e1;
+        }
+        
+        .show-password::after {
+            content: '早';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #5a6c7d;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .login-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+        
+        .forgot-password {
+            margin-top: 24px;
+            text-align: center;
+        }
+        
+        .forgot-password a {
+            color: #27ae60;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .forgot-password a:hover {
+            color: #2ecc71;
+            text-decoration: underline;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        /* 繝｡繧､繝ｳ繝ｬ繧､繧｢繧ｦ繝・*/
+        .main-layout {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .main-layout.active {
+            display: flex;
+        }
+        
+        /* 繧ｵ繧､繝峨ヰ繝ｼ・・C逕ｨ・・*/
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        
+        .system-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        
+        .user-role {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        /* 逞・劼繧ｻ繝ｬ繧ｯ繧ｿ繝ｼ */
+        .hospital-selector {
+            padding: 20px;
+            border-bottom: 1px solid #e1e8ed;
+            position: relative;
+        }
+        
+        .hospital-selector.warning {
+            background: #fff3cd;
+        }
+        
+        .hospital-selector.success {
+            background: #f0fdf4;
+        }
+        
+        .selector-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .hospital-selector.warning .selector-label {
+            color: #856404;
+        }
+        
+        .hospital-selector.success .selector-label {
+            color: #22c55e;
+        }
+        
+        .hospital-dropdown {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e1e8ed;
+            position: relative;
+        }
+        
+        .hospital-selector.warning .hospital-dropdown {
+            border-color: #ffc107;
+            color: #856404;
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2);
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .hospital-selector.success .hospital-dropdown {
+            border-color: #27ae60;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .dropdown-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #5a6c7d;
+        }
+        
+        /* 繝峨Ο繝・・繝繧ｦ繝ｳ繝ｪ繧ｹ繝・*/
+        .hospital-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #27ae60;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            display: none;
+        }
+        
+        .hospital-dropdown-list.active {
+            display: block;
+        }
+        
+        .dropdown-search {
+            padding: 12px;
+            border-bottom: 1px solid #e1e8ed;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .dropdown-group-title {
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: #f0fdf4;
+            color: #27ae60;
+        }
+        
+        .dropdown-item.selected {
+            background: #f0fdf4;
+            color: #27ae60;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .dropdown-item.selected::after {
+            content: '笨・;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .hospital-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .hospital-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .hospital-location {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .dropdown-item:hover .hospital-location {
+            color: #27ae60;
+            opacity: 0.7;
+        }
+        
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        /* 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繝｡繝九Η繝ｼ */
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        
+        .nav-menu.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .nav-menu.disabled #systemManagementGroup {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .nav-group {
+            margin-bottom: 24px;
+        }
+        
+        .nav-group-title {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px;
+            margin-bottom: 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #5a6c7d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(39, 174, 96, 0.1) 0%, transparent 100%);
+            color: #27ae60;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #27ae60;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 4px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: #27ae60;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        /* 繝｡繧､繝ｳ繧ｳ繝ｳ繝・Φ繝・*/
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 繝倥ャ繝繝ｼ */
+        .header {
+            background: white;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+        
+        .mobile-menu-button {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .menu-icon {
+            width: 20px;
+            height: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .menu-icon span {
+            height: 2px;
+            background: #5a6c7d;
+            border-radius: 1px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .page-title.disabled {
+            color: #94a3b8;
+        }
+        
+        /* 繝倥ャ繝繝ｼ繧｢繧ｯ繧ｷ繝ｧ繝ｳ */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        /* 繝・・繧ｿ蜷梧悄繝懊ち繝ｳ */
+        .sync-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            color: #27ae60;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        
+        .sync-button:hover {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .sync-icon {
+            font-size: 16px;
+        }
+        
+        .sync-badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* 繝ｦ繝ｼ繧ｶ繝ｼ繝｡繝九Η繝ｼ */
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-icon:hover {
+            border-color: #27ae60;
+            background: #f0fdf4;
+        }
+        
+        .user-avatar {
+            font-size: 20px;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 240px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .user-dropdown-header {
+            padding: 16px;
+            background: #fafbfc;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background: #e1e8ed;
+        }
+        
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #5a6c7d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .user-dropdown-item:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        
+        .user-dropdown-item:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .dropdown-icon {
+            font-size: 16px;
+        }
+        
+        /* 繝繝・す繝･繝懊・繝・*/
+        .dashboard {
+            flex: 1;
+            padding: 40px 32px;
+            overflow-y: auto;
+        }
+        
+        .alert-section {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 8px 24px rgba(255, 193, 7, 0.15);
+        }
+        
+        .alert-section.hidden {
+            display: none;
+        }
+        
+        .alert-icon {
+            width: 64px;
+            height: 64px;
+            background: #ffc107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .alert-content h2 {
+            font-size: 24px;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .alert-content p {
+            font-size: 16px;
+            color: #856404;
+            opacity: 0.9;
+        }
+        
+        .welcome-card {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+            display: none;
+        }
+        
+        .welcome-card.active {
+            display: block;
+        }
+        
+        .welcome-card h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-card p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* 繧｢繧ｯ繧ｷ繝ｧ繝ｳ繧ｫ繝ｼ繝・*/
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            text-decoration: none;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .action-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .action-card:not(.disabled):hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        .lock-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #e1e8ed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lock-icon {
+            width: 20px;
+            height: 20px;
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdbb 100%);
+            border-radius: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .action-card.disabled .action-icon {
+            background: #e1e8ed;
+            filter: grayscale(100%);
+        }
+        
+        .action-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .action-card.disabled .action-title {
+            color: #94a3b8;
+        }
+        
+        .action-description {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .action-card.disabled .action-description {
+            color: #cbd5e1;
+        }
+        
+        /* 繝懊ヨ繝繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ・医Δ繝舌う繝ｫ逕ｨ・・*/
+        .bottom-nav {
+            display: none;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            padding: 8px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: #5a6c7d;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .bottom-nav-item.active {
+            color: #27ae60;
+        }
+        
+        .bottom-nav-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .bottom-nav-icon {
+            width: 24px;
+            height: 24px;
+            background: currentColor;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .bottom-nav-label {
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .bottom-nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 50%;
+            transform: translateX(14px);
+            background: #27ae60;
+            color: white;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            min-width: 14px;
+            text-align: center;
+        }
+        
+        /* 繧ｪ繝ｼ繝舌・繝ｬ繧､ */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* 繝ｬ繧ｹ繝昴Φ繧ｷ繝・- 繧ｿ繝悶Ξ繝・ヨ */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-button {
+                display: flex;
+            }
+            
+            .header {
+                padding: 16px 24px;
+            }
+            
+            .sync-button .sync-text {
+                display: none;
+            }
+            
+            .sync-button {
+                padding: 8px 12px;
+            }
+            
+            .dashboard {
+                padding: 24px;
+                padding-bottom: 80px;
+            }
+            
+            .bottom-nav {
+                display: block;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* 繝ｬ繧ｹ繝昴Φ繧ｷ繝・- 繧ｹ繝槭・繝医ヵ繧ｩ繝ｳ */
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 280px;
+                max-width: 85vw;
+            }
+            
+            .hospital-dropdown-list {
+                max-height: 350px;
+            }
+            
+            .dropdown-search {
+                padding: 10px;
+            }
+            
+            .search-input {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .dropdown-group-title {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+            
+            .dropdown-item {
+                padding: 10px 12px;
+            }
+            
+            .hospital-name {
+                font-size: 13px;
+            }
+            
+            .hospital-location {
+                font-size: 11px;
+            }
+            
+            .header {
+                padding: 12px 16px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+            }
+            
+            .dashboard {
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+            
+            .alert-section {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .alert-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+            
+            .alert-content h2 {
+                font-size: 18px;
+            }
+            
+            .alert-content p {
+                font-size: 14px;
+            }
+            
+            .welcome-card {
+                padding: 20px;
+            }
+            
+            .welcome-card h2 {
+                font-size: 20px;
+            }
+            
+            .welcome-card p {
+                font-size: 14px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            
+            .action-card {
+                padding: 20px;
+                min-height: 140px;
+            }
+            
+            .action-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+            
+            .action-title {
+                font-size: 14px;
+            }
+            
+            .action-description {
+                font-size: 11px;
+            }
+            
+            .lock-overlay {
+                width: 32px;
+                height: 32px;
+                top: 12px;
+                right: 12px;
+            }
+            
+            .lock-icon {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        
+        /* 隱ｿ譟ｻ蝣ｴ謇蜈･蜉帷判髱｢ */
+        .location-input-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .location-input-screen.active {
+            display: block;
+        }
+        
+        .location-input-container {
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .location-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 32px;
+            margin-top: 20px;
+        }
+        
+        .location-form {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .location-form-group {
+            margin-bottom: 24px;
+        }
+        
+        .location-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a6c7d;
+            margin-bottom: 8px;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .readonly-field {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .category-selector {
+            position: relative;
+        }
+        
+        .category-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .category-input:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .category-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #27ae60;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .category-dropdown.active {
+            display: block;
+        }
+        
+        .category-dropdown .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-dropdown .dropdown-item:hover {
+            background: #f0fdf4;
+            color: #27ae60;
+        }
+        
+        .category-dropdown .dropdown-item.selected {
+            background: #f0fdf4;
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        .location-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .location-select:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .location-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            padding: 16px 20px;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .footer-back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            color: #5a6c7d;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-back-button:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e1;
+        }
+        
+        .footer-spacer {
+            flex: 1;
+        }
+        
+        .footer-next-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-next-button:disabled {
+            background: #e1e8ed;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .footer-next-button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .next-arrow, .back-arrow {
+            font-size: 18px;
+        }
+        
+        /* 繝代せ繝ｯ繝ｼ繝牙・險ｭ螳夂判髱｢ */
+        .password-reset-screen {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .password-reset-screen.active {
+            display: flex;
+        }
+        
+        .password-reset-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        
+        .password-reset-container .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 16px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .password-reset-container h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .reset-description {
+            color: #5a6c7d;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .reset-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .back-to-login {
+            margin-top: 24px;
+        }
+        
+        .back-to-login a {
+            color: #27ae60;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-login a:hover {
+            color: #2ecc71;
+            text-decoration: underline;
+        }
+        
+        /* 繝槭せ繧ｿ邂｡逅・∈謚樒判髱｢ */
+        .master-management-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .master-management-screen.active {
+            display: block;
+        }
+        
+        .master-management-container {
+            min-height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .master-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            color: #5a6c7d;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e1;
+        }
+        
+        .master-title {
+            flex: 1;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .header-spacer {
+            width: 90px;
+        }
+        
+        .master-description {
+            text-align: center;
+            color: #5a6c7d;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .master-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .master-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+        
+        .master-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border: 2px solid #27ae60;
+            padding: 22px;
+        }
+        
+        .master-card-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdbb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .master-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .master-card-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .master-card-arrow {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        
+        .master-card:hover .master-card-arrow {
+            color: #27ae60;
+            transform: translateY(-50%) translateX(4px);
+        }
+        
+        @media (max-width: 640px) {
+            .master-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .header-spacer {
+                display: none;
+            }
+            
+            .master-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .master-card-arrow {
+                position: static;
+                transform: none;
+                margin-top: 12px;
+            }
+        }
+        
+        /* 繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・判髱｢ */
+        .user-management-screen, .asset-list-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f7fa;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .user-management-screen.active, .asset-list-screen.active {
+            display: block;
+        }
+        
+        .user-management-container, .asset-list-container {
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .management-header, .asset-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .management-title, .asset-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .add-user-button, .export-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-user-button:hover, .export-button:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+        
+        .management-description {
+            text-align: center;
+            color: #5a6c7d;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .asset-filters {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .asset-search {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .asset-filter {
+            padding: 10px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .user-list, .asset-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .user-list-header, .asset-list-header {
+            display: grid;
+            background: #fafbfc;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a6c7d;
+            border-bottom: 2px solid #e1e8ed;
+        }
+        
+        .user-list-header {
+            grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1.5fr;
+        }
+        
+        .asset-list-header {
+            grid-template-columns: 1fr 2fr 1.5fr 2fr 1fr 1fr;
+        }
+        
+        .user-list-item, .asset-list-item {
+            display: grid;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+        
+        .user-list-item {
+            grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1.5fr;
+        }
+        
+        .asset-list-item {
+            grid-template-columns: 1fr 2fr 1.5fr 2fr 1fr 1fr;
+        }
+        
+        .user-list-item:hover, .asset-list-item:hover {
+            background: #fafbfc;
+        }
+        
+        .user-data, .asset-data {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .status-active {
+            padding: 4px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn.edit {
+            background: #e3f2fd;
+            color: #1976d2;
+            margin-right: 8px;
+        }
+        
+        .action-btn.delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .hospital-admin-menu {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+        }
+        
+        .user-management-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .user-management-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- 繝ｭ繧ｰ繧､繝ｳ繝壹・繧ｸ -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="logo">Logo</div>
+            <h1>Welcome to system</h1>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-id">繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ</label>
+                    <input type="email" id="login-id" placeholder="繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ繧貞・蜉帙＠縺ｦ縺上□縺輔＞" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">繝代せ繝ｯ繝ｼ繝・/label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="繝代せ繝ｯ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞" autocomplete="current-password" required>
+                        <div class="show-password" title="繝代せ繝ｯ繝ｼ繝峨ｒ陦ｨ遉ｺ" onclick="togglePassword()"></div>
+                    </div>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">繝ｭ繧ｰ繧､繝ｳ迥ｶ諷九ｒ菫晄戟縺吶ｋ</label>
+                </div>
+                <button type="submit" class="login-button">繝ｭ繧ｰ繧､繝ｳ</button>
+            </form>
+            <div class="forgot-password">
+                <a href="#" onclick="handleForgotPassword(event)">繝代せ繝ｯ繝ｼ繝峨ｒ縺雁ｿ倥ｌ縺ｧ縺吶°・・/a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 繝｡繧､繝ｳ繝ｬ繧､繧｢繧ｦ繝・-->
+    <div id="mainLayout" class="main-layout">
+        <!-- 繧ｪ繝ｼ繝舌・繝ｬ繧､ -->
+        <div id="overlay" class="overlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- 繧ｵ繧､繝峨ヰ繝ｼ -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">MC</div>
+                <div class="system-name">蛟倶ｽ鍋ｮ｡逅・す繧ｹ繝・Β</div>
+                <div class="user-role">蛹ｻ逋ゅさ繝ｳ繧ｵ繝ｫ繧ｿ繝ｳ繝・/div>
+            </div>
+            
+            <div id="hospitalSelector" class="hospital-selector warning">
+                <div class="selector-label">笞・・蟇ｾ雎｡逞・劼繧帝∈謚・/div>
+                <div class="hospital-dropdown" onclick="toggleHospitalDropdown()">
+                    <span id="selectedHospital">逞・劼繧帝∈謚槭＠縺ｦ縺上□縺輔＞</span>
+                    <span class="dropdown-arrow"></span>
+                </div>
+                <div id="hospitalDropdownList" class="hospital-dropdown-list">
+                    <div class="dropdown-search">
+                        <input type="text" id="hospitalSearchInput" class="search-input" placeholder="逞・劼蜷阪〒讀懃ｴ｢..." oninput="filterHospitals(this.value)">
+                    </div>
+                    
+                    <div id="recentHospitalsSection" style="display: none;">
+                        <div class="dropdown-group-title">譛霑鷹∈謚槭＠縺溽羅髯｢</div>
+                        <div id="recentHospitalsList"></div>
+                    </div>
+                    
+                    <div id="allHospitalsSection">
+                        <div class="dropdown-group-title">縺吶∋縺ｦ縺ｮ逞・劼</div>
+                        <div id="allHospitalsList">
+                            <div class="dropdown-item" onclick="selectHospital('譚ｱ莠ｬ邱丞粋逞・劼', '譚ｱ莠ｬ驛ｽ譁ｰ螳ｿ蛹ｺ')">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">譚ｱ莠ｬ邱丞粋逞・劼</span>
+                                    <span class="hospital-location">譚ｱ莠ｬ驛ｽ譁ｰ螳ｿ蛹ｺ</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('讓ｪ豬懷現逋ゅそ繝ｳ繧ｿ繝ｼ', '逾槫･亥ｷ晉恁讓ｪ豬懷ｸ・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">讓ｪ豬懷現逋ゅそ繝ｳ繧ｿ繝ｼ</span>
+                                    <span class="hospital-location">逾槫･亥ｷ晉恁讓ｪ豬懷ｸ・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('蜊・痩螟ｧ蟄ｦ逞・劼', '蜊・痩逵悟鴻闡牙ｸ・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">蜊・痩螟ｧ蟄ｦ逞・劼</span>
+                                    <span class="hospital-location">蜊・痩逵悟鴻闡牙ｸ・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('蝓ｼ邇我ｸｭ螟ｮ逞・劼', '蝓ｼ邇臥恁縺輔＞縺溘∪蟶・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">蝓ｼ邇我ｸｭ螟ｮ逞・劼</span>
+                                    <span class="hospital-location">蝓ｼ邇臥恁縺輔＞縺溘∪蟶・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('逾樊虻蟶らｫ句現逋ゅそ繝ｳ繧ｿ繝ｼ', '蜈ｵ蠎ｫ逵檎･樊虻蟶・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">逾樊虻蟶らｫ句現逋ゅそ繝ｳ繧ｿ繝ｼ</span>
+                                    <span class="hospital-location">蜈ｵ蠎ｫ逵檎･樊虻蟶・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('螟ｧ髦ｪ邱丞粋蛹ｻ逋ゅそ繝ｳ繧ｿ繝ｼ', '螟ｧ髦ｪ蠎懷､ｧ髦ｪ蟶・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">螟ｧ髦ｪ邱丞粋蛹ｻ逋ゅそ繝ｳ繧ｿ繝ｼ</span>
+                                    <span class="hospital-location">螟ｧ髦ｪ蠎懷､ｧ髦ｪ蟶・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('蜷榊商螻狗ｬｬ荳逞・劼', '諢帷衍逵悟錐蜿､螻句ｸ・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">蜷榊商螻狗ｬｬ荳逞・劼</span>
+                                    <span class="hospital-location">諢帷衍逵悟錐蜿､螻句ｸ・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('遖丞ｲ｡荳ｭ螟ｮ逞・劼', '遖丞ｲ｡逵檎ｦ丞ｲ｡蟶・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">遖丞ｲ｡荳ｭ螟ｮ逞・劼</span>
+                                    <span class="hospital-location">遖丞ｲ｡逵檎ｦ丞ｲ｡蟶・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('譛ｭ蟷悟現逋ゅそ繝ｳ繧ｿ繝ｼ', '蛹玲ｵｷ驕捺惆蟷悟ｸ・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">譛ｭ蟷悟現逋ゅそ繝ｳ繧ｿ繝ｼ</span>
+                                    <span class="hospital-location">蛹玲ｵｷ驕捺惆蟷悟ｸ・/span>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" onclick="selectHospital('莉吝床邱丞粋逞・劼', '螳ｮ蝓守恁莉吝床蟶・)">
+                                <div class="hospital-info">
+                                    <span class="hospital-name">莉吝床邱丞粋逞・劼</span>
+                                    <span class="hospital-location">螳ｮ蝓守恁莉吝床蟶・/span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav id="navMenu" class="nav-menu disabled">
+                <a class="nav-item active">
+                    <span class="nav-icon"></span>
+                    <span>繝帙・繝</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>QR繧ｳ繝ｼ繝臥匱陦・/span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>QR繧ｳ繝ｼ繝芽ｪｭ縺ｿ蜿悶ｊ</span>
+                    <span class="nav-badge" id="qrBadge" style="display: none;">3</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>逋ｻ骭ｲ蜀・ｮｹ菫ｮ豁｣</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>蜿ｰ蟶ｳ蜿冶ｾｼ</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>繝・・繧ｿ遯∝粋</span>
+                </a>
+                <a class="nav-item">
+                    <span class="nav-icon"></span>
+                    <span>雉・肇荳隕ｧ</span>
+                </a>
+                <a class="nav-item" onclick="showMasterManagementScreen()">
+                    <span class="nav-icon"></span>
+                    <span>繝槭せ繧ｿ邂｡逅・/span>
+                </a>
+                <a class="nav-item" onclick="showUserManagementScreen()">
+                    <span class="nav-icon"></span>
+                    <span>繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・/span>
+                </a>
+                <a class="nav-item" onclick="handleLogout()">
+                    <span class="nav-icon"></span>
+                    <span>繝ｭ繧ｰ繧｢繧ｦ繝・/span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- 繝｡繧､繝ｳ繧ｳ繝ｳ繝・Φ繝・-->
+        <main class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="mobile-menu-button" onclick="toggleMobileMenu()">
+                        <div class="menu-icon">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </button>
+                    <h1 id="pageTitle" class="page-title">繝繝・す繝･繝懊・繝・/h1>
+                </div>
+                <div class="header-actions">
+                    <button id="syncButton" class="sync-button" onclick="handleDataSync()" style="display: none;">
+                        <span class="sync-icon">売</span>
+                        <span class="sync-text">繝・・繧ｿ蜷梧悄</span>
+                        <span class="sync-badge">3</span>
+                    </button>
+                    <div class="user-menu">
+                        <button class="user-icon" onclick="toggleUserMenu()">
+                            <span class="user-avatar">側</span>
+                        </button>
+                        <div id="userDropdown" class="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-info">
+                                    <span class="user-name">蛹ｻ逋ゅさ繝ｳ繧ｵ繝ｫ繧ｿ繝ｳ繝・/span>
+                                    <span class="user-email">user@medical.com</span>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="#" class="user-dropdown-item" onclick="handleProfile(event)">
+                                <span class="dropdown-icon">笞呻ｸ・/span>
+                                <span>繧｢繧ｫ繧ｦ繝ｳ繝郁ｨｭ螳・/span>
+                            </a>
+                            <a href="#" class="user-dropdown-item" onclick="handleLogout()">
+                                <span class="dropdown-icon">坎</span>
+                                <span>繝ｭ繧ｰ繧｢繧ｦ繝・/span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard">
+                <!-- 隴ｦ蜻翫そ繧ｯ繧ｷ繝ｧ繝ｳ -->
+                <div id="alertSection" class="alert-section">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">
+                        <h2>逞・劼縺碁∈謚槭＆繧後※縺・∪縺帙ｓ</h2>
+                        <p>QR繧ｳ繝ｼ繝臥ｮ｡逅・・繝・・繧ｿ邂｡逅・・蛻・梵讖溯・繧剃ｽｿ逕ｨ縺吶ｋ縺ｫ縺ｯ縲√∪縺壻ｽ懈･ｭ蟇ｾ雎｡縺ｨ縺ｪ繧狗羅髯｢繧帝∈謚槭＠縺ｦ縺上□縺輔＞縲・br>繝槭せ繧ｿ邂｡逅・・逞・劼驕ｸ謚槭↑縺励〒蛻ｩ逕ｨ蜿ｯ閭ｽ縺ｧ縺吶・/p>
+                    </div>
+                </div>
+                
+                <!-- 繧ｦ繧ｧ繝ｫ繧ｫ繝繧ｫ繝ｼ繝・-->
+                <div id="welcomeCard" class="welcome-card">
+                    <h2>譚ｱ莠ｬ邱丞粋逞・劼縺ｮ蛟倶ｽ鍋ｮ｡逅・/h2>
+                    <p>讖溷勣邂｡逅・す繧ｹ繝・Β縺ｸ繧医≧縺薙◎縲ゅ☆縺ｹ縺ｦ縺ｮ讖溯・縺悟茜逕ｨ蜿ｯ閭ｽ縺ｧ縺吶・/p>
+                </div>
+                
+                <!-- 繧｢繧ｯ繧ｷ繝ｧ繝ｳ繧ｫ繝ｼ繝・-->
+                <div class="quick-actions">
+                    <div id="card1" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">導</div>
+                        <div class="action-title">QR繧ｳ繝ｼ繝臥匱陦・/div>
+                        <div class="action-description">譁ｰ隕讐R繧ｳ繝ｼ繝峨ｒ逋ｺ陦・/div>
+                    </div>
+                    
+                    <div id="card2" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">胴</div>
+                        <div class="action-title">QR繧ｳ繝ｼ繝芽ｪｭ縺ｿ蜿悶ｊ</div>
+                        <div class="action-description">讖溷勣諠・ｱ繧堤匳骭ｲ</div>
+                    </div>
+                    
+                    <div id="card3" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">笨擾ｸ・/div>
+                        <div class="action-title">逋ｻ骭ｲ蜀・ｮｹ菫ｮ豁｣</div>
+                        <div class="action-description">諠・ｱ縺ｮ遒ｺ隱阪・菫ｮ豁｣</div>
+                    </div>
+                    
+                    <div id="card4" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">投</div>
+                        <div class="action-title">蜿ｰ蟶ｳ蜿冶ｾｼ</div>
+                        <div class="action-description">Excel繝・・繧ｿ繧偵う繝ｳ繝昴・繝・/div>
+                    </div>
+                    
+                    <div id="card5" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">､・/div>
+                        <div class="action-title">繝・・繧ｿ遯∝粋</div>
+                        <div class="action-description">AI縺ｫ繧医ｋ閾ｪ蜍慕ｪ∝粋</div>
+                    </div>
+                    
+                    <div id="card6" class="action-card disabled">
+                        <div class="lock-overlay">
+                            <span class="lock-icon"></span>
+                        </div>
+                        <div class="action-icon">搭</div>
+                        <div class="action-title">雉・肇荳隕ｧ</div>
+                        <div class="action-description">逞・劼縺ｮ雉・肇繧堤｢ｺ隱・/div>
+                    </div>
+                    
+                    <div id="card7" class="action-card">
+                        <div class="action-icon">笞呻ｸ・/div>
+                        <div class="action-title">繝槭せ繧ｿ邂｡逅・/div>
+                        <div class="action-description">蜷・ｨｮ繝槭せ繧ｿ縺ｮ險ｭ螳・/div>
+                    </div>
+                    
+                    <div id="card8" class="action-card">
+                        <div class="action-icon">則</div>
+                        <div class="action-title">繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・/div>
+                        <div class="action-description">繧ｳ繝ｳ繧ｵ繝ｫ繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ邂｡逅・/div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 繝懊ヨ繝繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a id="bottomNavHome" class="bottom-nav-item active">
+                    <span class="bottom-nav-icon"></span>
+                    <span class="bottom-nav-label">繝帙・繝</span>
+                </a>
+                <a id="bottomNavQR" class="bottom-nav-item disabled">
+                    <span class="bottom-nav-icon"></span>
+                    <span class="bottom-nav-label">QR隱ｭ蜿・/span>
+                    <span class="bottom-nav-badge" id="bottomQrBadge" style="display: none;">3</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- 隱ｿ譟ｻ蝣ｴ謇蜈･蜉帷判髱｢ -->
+    <div id="locationInputScreen" class="location-input-screen">
+        <div class="location-input-container">
+            <h2 class="location-title">隱ｿ譟ｻ蝣ｴ謇蜈･蜉・/h2>
+            
+            <form id="locationForm" class="location-form">
+                <!-- 隱ｿ譟ｻ譌･ -->
+                <div class="location-form-group">
+                    <label>隱ｿ譟ｻ譌･</label>
+                    <div class="readonly-field">
+                        <span id="surveyDate"></span>
+                    </div>
+                </div>
+                
+                <!-- Category -->
+                <div class="location-form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <div class="category-selector">
+                        <input type="text" id="categoryInput" class="category-input" placeholder="Category繧呈､懃ｴ｢縺ｾ縺溘・驕ｸ謚・.." autocomplete="off">
+                        <div id="categoryDropdown" class="category-dropdown">
+                            <div class="dropdown-item" data-value="蛹ｻ逋よｩ溷勣">蛹ｻ逋よｩ溷勣</div>
+                            <div class="dropdown-item" data-value="莉蝎ｨ蛯吝刀">莉蝎ｨ蛯吝刀</div>
+                            <div class="dropdown-item" data-value="險ｭ蛯呎ｩ溷勣">險ｭ蛯呎ｩ溷勣</div>
+                            <div class="dropdown-item" data-value="諠・ｱ讖溷勣">諠・ｱ讖溷勣</div>
+                            <div class="dropdown-item" data-value="莠句漁讖溷勣">莠句漁讖溷勣</div>
+                            <div class="dropdown-item" data-value="縺昴・莉・>縺昴・莉・/div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 譽・-->
+                <div class="location-form-group">
+                    <label>譽・<span class="required">*</span></label>
+                    <select id="buildingSelect" class="location-select" required>
+                        <option value="">驕ｸ謚槭＠縺ｦ縺上□縺輔＞</option>
+                        <option value="譛ｬ鬢ｨ">譛ｬ鬢ｨ</option>
+                        <option value="譚ｱ譽・>譚ｱ譽・/option>
+                        <option value="隘ｿ譽・>隘ｿ譽・/option>
+                        <option value="蜊玲｣・>蜊玲｣・/option>
+                        <option value="蛹玲｣・>蛹玲｣・/option>
+                        <option value="蛻･鬢ｨ">蛻･鬢ｨ</option>
+                    </select>
+                </div>
+                
+                <!-- 髫・-->
+                <div class="location-form-group">
+                    <label>髫・<span class="required">*</span></label>
+                    <select id="floorSelect" class="location-select" required>
+                        <option value="">驕ｸ謚槭＠縺ｦ縺上□縺輔＞</option>
+                        <option value="B2F">B2F</option>
+                        <option value="B1F">B1F</option>
+                        <option value="1F">1F</option>
+                        <option value="2F">2F</option>
+                        <option value="3F">3F</option>
+                        <option value="4F">4F</option>
+                        <option value="5F">5F</option>
+                        <option value="6F">6F</option>
+                        <option value="7F">7F</option>
+                        <option value="8F">8F</option>
+                        <option value="RF">RF</option>
+                    </select>
+                </div>
+                
+                <!-- 驛ｨ髢 -->
+                <div class="location-form-group">
+                    <label>驛ｨ髢 <span class="required">*</span></label>
+                    <select id="departmentSelect" class="location-select" required>
+                        <option value="">驕ｸ謚槭＠縺ｦ縺上□縺輔＞</option>
+                        <option value="險ｺ逋るΚ">險ｺ逋るΚ</option>
+                        <option value="逵玖ｭｷ驛ｨ">逵玖ｭｷ驛ｨ</option>
+                        <option value="蛹ｻ逋よ橿陦馴Κ">蛹ｻ逋よ橿陦馴Κ</option>
+                        <option value="莠句漁驛ｨ">莠句漁驛ｨ</option>
+                        <option value="阮ｬ蜑､驛ｨ">阮ｬ蜑､驛ｨ</option>
+                    </select>
+                </div>
+                
+                <!-- 驛ｨ鄂ｲ -->
+                <div class="location-form-group">
+                    <label>驛ｨ鄂ｲ <span class="required">*</span></label>
+                    <select id="sectionSelect" class="location-select" required>
+                        <option value="">驕ｸ謚槭＠縺ｦ縺上□縺輔＞</option>
+                        <option value="蜀・ｧ・>蜀・ｧ・/option>
+                        <option value="螟也ｧ・>螟也ｧ・/option>
+                        <option value="謨ｴ蠖｢螟也ｧ・>謨ｴ蠖｢螟也ｧ・/option>
+                        <option value="蟆丞・遘・>蟆丞・遘・/option>
+                        <option value="逕｣蟀ｦ莠ｺ遘・>逕｣蟀ｦ莠ｺ遘・/option>
+                        <option value="謾ｾ蟆・ｷ夂ｧ・>謾ｾ蟆・ｷ夂ｧ・/option>
+                        <option value="ICU">ICU</option>
+                        <option value="謇玖｡灘ｮ､">謇玖｡灘ｮ､</option>
+                        <option value="螟匁擂">螟匁擂</option>
+                        <option value="逞・｣・>逞・｣・/option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 繝輔ャ繧ｿ繝ｼ・域綾繧九・谺｡縺ｸ繝懊ち繝ｳ・・-->
+        <div class="location-footer">
+            <button class="footer-back-button" onclick="hideLocationInputScreen()">
+                <span class="back-arrow">竊・/span>
+                <span>謌ｻ繧・/span>
+            </button>
+            <div class="footer-spacer"></div>
+            <button id="nextButton" class="footer-next-button" onclick="handleNext()" disabled>
+                <span>谺｡縺ｸ</span>
+                <span class="next-arrow">竊・/span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 繝代せ繝ｯ繝ｼ繝牙・險ｭ螳夂判髱｢ -->
+    <div id="passwordResetScreen" class="password-reset-screen">
+        <div class="password-reset-container">
+            <div class="logo">Logo</div>
+            <h1>繝代せ繝ｯ繝ｼ繝牙・險ｭ螳・/h1>
+            <p class="reset-description">
+                逋ｻ骭ｲ貂医∩縺ｮ繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ繧貞・蜉帙＠縺ｦ縺上□縺輔＞縲・br>
+                繝代せ繝ｯ繝ｼ繝牙・險ｭ螳夂畑縺ｮURL繧偵♀騾√ｊ縺励∪縺吶・            </p>
+            
+            <form onsubmit="handlePasswordReset(event)">
+                <div class="form-group">
+                    <label for="reset-email">繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ</label>
+                    <input type="email" id="reset-email" placeholder="example@medical.com" required>
+                </div>
+                
+                <button type="submit" class="reset-button">騾∽ｿ｡</button>
+            </form>
+            
+            <div class="back-to-login">
+                <a href="#" onclick="backToLogin(event)">繝ｭ繧ｰ繧､繝ｳ逕ｻ髱｢縺ｫ謌ｻ繧・/a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 繝槭せ繧ｿ邂｡逅・∈謚樒判髱｢ -->
+    <div id="masterManagementScreen" class="master-management-screen">
+        <div class="master-management-container">
+            <div class="master-header">
+                <button class="back-button" onclick="hideMasterManagementScreen()">
+                    <span>竊・/span>
+                    <span>謌ｻ繧・/span>
+                </button>
+                <h2 class="master-title">繝槭せ繧ｿ邂｡逅・/h2>
+                <div class="header-spacer"></div>
+            </div>
+            
+            <div class="master-description">
+                邂｡逅・☆繧九・繧ｹ繧ｿ繧帝∈謚槭＠縺ｦ縺上□縺輔＞
+            </div>
+            
+            <div class="master-cards">
+                <div class="master-card" onclick="handleMasterSelect('譁ｽ險ｭ繝槭せ繧ｿ')">
+                    <div class="master-card-icon">召</div>
+                    <div class="master-card-title">譁ｽ險ｭ繝槭せ繧ｿ邂｡逅・/div>
+                    <div class="master-card-description">
+                        逞・劼縺ｮ譁ｽ險ｭ諠・ｱ・域｣溘・髫弱・驛ｨ髢繝ｻ驛ｨ鄂ｲ・峨ｒ邂｡逅・                    </div>
+                    <div class="master-card-arrow">竊・/div>
+                </div>
+                
+                <div class="master-card" onclick="handleMasterSelect('雉・肇繝槭せ繧ｿ')">
+                    <div class="master-card-icon">逃</div>
+                    <div class="master-card-title">雉・肇繝槭せ繧ｿ邂｡逅・/div>
+                    <div class="master-card-description">
+                        雉・肇繧ｫ繝・ざ繝ｪ繝ｼ繧・・鬘樊ュ蝣ｱ繧堤ｮ｡逅・                    </div>
+                    <div class="master-card-arrow">竊・/div>
+                </div>
+                
+                <div class="master-card" onclick="handleMasterSelect('菴懈･ｭ繝槭せ繧ｿ')">
+                    <div class="master-card-icon">肌</div>
+                    <div class="master-card-title">菴懈･ｭ繝槭せ繧ｿ邂｡逅・/div>
+                    <div class="master-card-description">
+                        菴懈･ｭ遞ｮ蛻･繧・ｽ懈･ｭ蜀・ｮｹ縺ｮ螳夂ｾｩ繧堤ｮ｡逅・                    </div>
+                    <div class="master-card-arrow">竊・/div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・判髱｢・医さ繝ｳ繧ｵ繝ｫ逕ｨ・・-->
+    <div id="userManagementScreen" class="user-management-screen">
+        <div class="user-management-container">
+            <div class="management-header">
+                <button class="back-button" onclick="hideUserManagementScreen()">
+                    <span>竊・/span>
+                    <span>謌ｻ繧・/span>
+                </button>
+                <h2 class="management-title">繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・/h2>
+                <button class="add-user-button" onclick="handleAddUser()">
+                    <span>+</span>
+                    <span>譁ｰ隕冗匳骭ｲ</span>
+                </button>
+            </div>
+            
+            <div class="management-description">
+                蛹ｻ逋ゅさ繝ｳ繧ｵ繝ｫ繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ邂｡逅・            </div>
+            
+            <div class="user-list">
+                <div class="user-list-header">
+                    <div class="user-header-item">繝ｦ繝ｼ繧ｶ繝ｼID</div>
+                    <div class="user-header-item">豌丞錐</div>
+                    <div class="user-header-item">繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ</div>
+                    <div class="user-header-item">讓ｩ髯・/div>
+                    <div class="user-header-item">迥ｶ諷・/div>
+                    <div class="user-header-item">謫堺ｽ・/div>
+                </div>
+                
+                <div class="user-list-item">
+                    <div class="user-data">consul001</div>
+                    <div class="user-data">逕ｰ荳ｭ 螟ｪ驛・/div>
+                    <div class="user-data">tanaka@medical.com</div>
+                    <div class="user-data">邂｡逅・・/div>
+                    <div class="user-data"><span class="status-active">譛牙柑</span></div>
+                    <div class="user-data">
+                        <button class="action-btn edit" onclick="handleEditUser('consul001')">邱ｨ髮・/button>
+                        <button class="action-btn delete" onclick="handleDeleteUser('consul001')">蜑企勁</button>
+                    </div>
+                </div>
+                
+                <div class="user-list-item">
+                    <div class="user-data">consul002</div>
+                    <div class="user-data">菴占陸 闃ｱ蟄・/div>
+                    <div class="user-data">sato@medical.com</div>
+                    <div class="user-data">荳闊ｬ</div>
+                    <div class="user-data"><span class="status-active">譛牙柑</span></div>
+                    <div class="user-data">
+                        <button class="action-btn edit" onclick="handleEditUser('consul002')">邱ｨ髮・/button>
+                        <button class="action-btn delete" onclick="handleDeleteUser('consul002')">蜑企勁</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 雉・肇荳隕ｧ逕ｻ髱｢ -->
+    <div id="assetListScreen" class="asset-list-screen">
+        <div class="asset-list-container">
+            <div class="asset-header">
+                <button class="back-button" onclick="hideAssetListScreen()">
+                    <span>竊・/span>
+                    <span id="assetBackButtonText">謌ｻ繧・/span>
+                </button>
+                <h2 class="asset-title">雉・肇荳隕ｧ - <span id="hospitalNameInAsset">譚ｱ莠ｬ邱丞粋逞・劼</span></h2>
+                <div class="asset-actions">
+                    <button class="export-button" onclick="handleExport()">
+                        <span>踏</span>
+                        <span>繧ｨ繧ｯ繧ｹ繝昴・繝・/span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="asset-filters">
+                <input type="text" class="asset-search" placeholder="雉・肇蜷阪・邂｡逅・分蜿ｷ縺ｧ讀懃ｴ｢...">
+                <select class="asset-filter">
+                    <option value="">繧ｫ繝・ざ繝ｪ繝ｼ・壹☆縺ｹ縺ｦ</option>
+                    <option value="medical">蛹ｻ逋よｩ溷勣</option>
+                    <option value="furniture">莉蝎ｨ蛯吝刀</option>
+                    <option value="facility">險ｭ蛯呎ｩ溷勣</option>
+                </select>
+                <select class="asset-filter">
+                    <option value="">迥ｶ諷具ｼ壹☆縺ｹ縺ｦ</option>
+                    <option value="active">菴ｿ逕ｨ荳ｭ</option>
+                    <option value="maintenance">繝｡繝ｳ繝・リ繝ｳ繧ｹ荳ｭ</option>
+                    <option value="disposed">蟒・｣・ｸ医∩</option>
+                </select>
+            </div>
+            
+            <div class="asset-list">
+                <div class="asset-list-header">
+                    <div class="asset-header-item">邂｡逅・分蜿ｷ</div>
+                    <div class="asset-header-item">雉・肇蜷・/div>
+                    <div class="asset-header-item">繧ｫ繝・ざ繝ｪ繝ｼ</div>
+                    <div class="asset-header-item">險ｭ鄂ｮ蝣ｴ謇</div>
+                    <div class="asset-header-item">蜿門ｾ玲律</div>
+                    <div class="asset-header-item">迥ｶ諷・/div>
+                </div>
+                
+                <div class="asset-list-item">
+                    <div class="asset-data">MED-001</div>
+                    <div class="asset-data">雜・浹豕｢險ｺ譁ｭ陬・ｽｮ</div>
+                    <div class="asset-data">蛹ｻ逋よｩ溷勣</div>
+                    <div class="asset-data">譛ｬ鬢ｨ3F 讀懈渊螳､</div>
+                    <div class="asset-data">2023/04/01</div>
+                    <div class="asset-data"><span class="status-active">菴ｿ逕ｨ荳ｭ</span></div>
+                </div>
+                
+                <div class="asset-list-item">
+                    <div class="asset-data">MED-002</div>
+                    <div class="asset-data">蠢・崕蝗ｳ繝｢繝九ち繝ｼ</div>
+                    <div class="asset-data">蛹ｻ逋よｩ溷勣</div>
+                    <div class="asset-data">譛ｬ鬢ｨ5F ICU</div>
+                    <div class="asset-data">2022/10/15</div>
+                    <div class="asset-data"><span class="status-active">菴ｿ逕ｨ荳ｭ</span></div>
+                </div>
+            </div>
+            
+            <!-- 逞・劼邂｡逅・・畑縺ｮ繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・・繧ｿ繝ｳ -->
+            <div class="hospital-admin-menu">
+                <button class="user-management-btn" onclick="showHospitalUserManagement()">
+                    <span>則</span>
+                    <span>逞・劼繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・/span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 迥ｶ諷狗ｮ｡逅・        let isLoggedIn = false;
+        let selectedHospitalName = null;
+        let isMobileMenuOpen = false;
+        let recentHospitals = [];
+        
+        // 蜈ｨ逞・劼繝ｪ繧ｹ繝・        const allHospitals = [
+            { name: '譚ｱ莠ｬ邱丞粋逞・劼', location: '譚ｱ莠ｬ驛ｽ譁ｰ螳ｿ蛹ｺ' },
+            { name: '讓ｪ豬懷現逋ゅそ繝ｳ繧ｿ繝ｼ', location: '逾槫･亥ｷ晉恁讓ｪ豬懷ｸ・ },
+            { name: '蜊・痩螟ｧ蟄ｦ逞・劼', location: '蜊・痩逵悟鴻闡牙ｸ・ },
+            { name: '蝓ｼ邇我ｸｭ螟ｮ逞・劼', location: '蝓ｼ邇臥恁縺輔＞縺溘∪蟶・ },
+            { name: '逾樊虻蟶らｫ句現逋ゅそ繝ｳ繧ｿ繝ｼ', location: '蜈ｵ蠎ｫ逵檎･樊虻蟶・ },
+            { name: '螟ｧ髦ｪ邱丞粋蛹ｻ逋ゅそ繝ｳ繧ｿ繝ｼ', location: '螟ｧ髦ｪ蠎懷､ｧ髦ｪ蟶・ },
+            { name: '蜷榊商螻狗ｬｬ荳逞・劼', location: '諢帷衍逵悟錐蜿､螻句ｸ・ },
+            { name: '遖丞ｲ｡荳ｭ螟ｮ逞・劼', location: '遖丞ｲ｡逵檎ｦ丞ｲ｡蟶・ },
+            { name: '譛ｭ蟷悟現逋ゅそ繝ｳ繧ｿ繝ｼ', location: '蛹玲ｵｷ驕捺惆蟷悟ｸ・ },
+            { name: '莉吝床邱丞粋逞・劼', location: '螳ｮ蝓守恁莉吝床蟶・ }
+        ];
+        
+        // localStorage 縺九ｉ譛霑鷹∈謚槭＠縺溽羅髯｢繧定ｪｭ縺ｿ霎ｼ縺ｿ
+        function loadRecentHospitals() {
+            const stored = localStorage.getItem('recentHospitals');
+            if (stored) {
+                recentHospitals = JSON.parse(stored);
+                updateRecentHospitalsList();
+            }
+        }
+        
+        // 譛霑鷹∈謚槭＠縺溽羅髯｢繝ｪ繧ｹ繝医ｒ譖ｴ譁ｰ
+        function updateRecentHospitalsList() {
+            const recentSection = document.getElementById('recentHospitalsSection');
+            const recentList = document.getElementById('recentHospitalsList');
+            
+            if (recentHospitals.length > 0) {
+                recentSection.style.display = 'block';
+                recentList.innerHTML = recentHospitals.map(hospital => `
+                    <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                         onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                        <div class="hospital-info">
+                            <span class="hospital-name">${hospital.name}</span>
+                            <span class="hospital-location">${hospital.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                recentSection.style.display = 'none';
+            }
+        }
+        
+        // 逞・劼讀懃ｴ｢繝輔ぅ繝ｫ繧ｿ繝ｼ
+        function filterHospitals(searchTerm) {
+            const normalizedSearch = searchTerm.toLowerCase().trim();
+            const allHospitalsList = document.getElementById('allHospitalsList');
+            
+            if (normalizedSearch === '') {
+                // 讀懃ｴ｢隱槭′遨ｺ縺ｮ蝣ｴ蜷医√☆縺ｹ縺ｦ縺ｮ逞・劼繧定｡ｨ遉ｺ
+                allHospitalsList.innerHTML = allHospitals.map(hospital => `
+                    <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                         onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                        <div class="hospital-info">
+                            <span class="hospital-name">${hospital.name}</span>
+                            <span class="hospital-location">${hospital.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // 縺ゅ＞縺ｾ縺・､懃ｴ｢
+                const filteredHospitals = allHospitals.filter(hospital => 
+                    hospital.name.toLowerCase().includes(normalizedSearch) ||
+                    hospital.location.toLowerCase().includes(normalizedSearch)
+                );
+                
+                if (filteredHospitals.length > 0) {
+                    allHospitalsList.innerHTML = filteredHospitals.map(hospital => `
+                        <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                             onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                            <div class="hospital-info">
+                                <span class="hospital-name">${hospital.name}</span>
+                                <span class="hospital-location">${hospital.location}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    allHospitalsList.innerHTML = '<div class="no-results">讀懃ｴ｢邨先棡縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縺ｧ縺励◆</div>';
+                }
+            }
+            
+            // 譛霑鷹∈謚槭＠縺溽羅髯｢繧ゅヵ繧｣繝ｫ繧ｿ繝ｪ繝ｳ繧ｰ
+            if (recentHospitals.length > 0) {
+                const filteredRecent = recentHospitals.filter(hospital =>
+                    hospital.name.toLowerCase().includes(normalizedSearch) ||
+                    hospital.location.toLowerCase().includes(normalizedSearch)
+                );
+                
+                const recentSection = document.getElementById('recentHospitalsSection');
+                const recentList = document.getElementById('recentHospitalsList');
+                
+                if (filteredRecent.length > 0) {
+                    recentSection.style.display = 'block';
+                    recentList.innerHTML = filteredRecent.map(hospital => `
+                        <div class="dropdown-item${hospital.name === selectedHospitalName ? ' selected' : ''}" 
+                             onclick="selectHospital('${hospital.name}', '${hospital.location}')">
+                            <div class="hospital-info">
+                                <span class="hospital-name">${hospital.name}</span>
+                                <span class="hospital-location">${hospital.location}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else if (normalizedSearch !== '') {
+                    recentSection.style.display = 'none';
+                }
+            }
+        }
+        
+        // 繝ｭ繧ｰ繧､繝ｳ蜃ｦ逅・        function handleLogin(event) {
+            event.preventDefault();
+            const loginId = document.getElementById('login-id').value;
+            isLoggedIn = true;
+            
+            // 繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ縺ｮ繝峨Γ繧､繝ｳ縺ｧ繝ｦ繝ｼ繧ｶ繝ｼ遞ｮ蛻･繧貞愛螳・            if (loginId.includes('@hospital')) {
+                // 逞・劼繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ蝣ｴ蜷茨ｼ・hospital繝峨Γ繧､繝ｳ・・                document.getElementById('loginPage').style.display = 'none';
+                // 逞・劼蜷阪ｒ莉ｮ險ｭ螳夲ｼ亥ｮ滄圀縺ｯ逞・劼繝ｦ繝ｼ繧ｶ繝ｼ縺ｫ邏舌▼縺冗羅髯｢蜷阪ｒ險ｭ螳夲ｼ・                selectedHospitalName = '譚ｱ莠ｬ邱丞粋逞・劼';
+                showAssetListScreen();
+            } else {
+                // 繧ｳ繝ｳ繧ｵ繝ｫ繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ蝣ｴ蜷・                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainLayout').classList.add('active');
+            }
+        }
+        
+        // 繝代せ繝ｯ繝ｼ繝峨Μ繧ｻ繝・ヨ蜃ｦ逅・        function handleForgotPassword(event) {
+            event.preventDefault();
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('passwordResetScreen').classList.add('active');
+        }
+        
+        // 繝代せ繝ｯ繝ｼ繝牙・險ｭ螳壹Γ繝ｼ繝ｫ騾∽ｿ｡蜃ｦ逅・        function handlePasswordReset(event) {
+            event.preventDefault();
+            const email = document.getElementById('reset-email').value;
+            alert(`繝代せ繝ｯ繝ｼ繝牙・險ｭ螳夂畑縺ｮURL繧・${email} 縺ｫ騾∽ｿ｡縺励∪縺励◆縲・n繝｡繝ｼ繝ｫ繧偵＃遒ｺ隱阪￥縺縺輔＞縲Ａ);
+            backToLogin(event);
+        }
+        
+        // 繝ｭ繧ｰ繧､繝ｳ逕ｻ髱｢縺ｫ謌ｻ繧・        function backToLogin(event) {
+            event.preventDefault();
+            document.getElementById('passwordResetScreen').classList.remove('active');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('reset-email').value = '';
+        }
+        
+        // 繝代せ繝ｯ繝ｼ繝芽｡ｨ遉ｺ/髱櫁｡ｨ遉ｺ蛻・ｊ譖ｿ縺・        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const showPasswordBtn = document.querySelector('.show-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showPasswordBtn.style.background = '#27ae60';
+            } else {
+                passwordInput.type = 'password';
+                showPasswordBtn.style.background = '#e1e8ed';
+            }
+        }
+        
+        // 繝ｦ繝ｼ繧ｶ繝ｼ繝｡繝九Η繝ｼ縺ｮ髢矩哩
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('active');
+        }
+        
+        // 繝励Ο繝輔ぅ繝ｼ繝ｫ險ｭ螳・        function handleProfile(event) {
+            event.preventDefault();
+            alert('繧｢繧ｫ繧ｦ繝ｳ繝郁ｨｭ螳壹・髢狗匱荳ｭ縺ｧ縺・);
+            document.getElementById('userDropdown').classList.remove('active');
+        }
+        
+        // 繝・・繧ｿ蜷梧悄蜃ｦ逅・        function handleDataSync() {
+            const button = document.getElementById('syncButton');
+            const icon = button.querySelector('.sync-icon');
+            const badge = button.querySelector('.sync-badge');
+            
+            // 蝗櫁ｻ｢繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ
+            icon.style.display = 'inline-block';
+            icon.style.animation = 'spin 1s linear';
+            
+            setTimeout(() => {
+                alert('3莉ｶ縺ｮQR繧ｳ繝ｼ繝芽ｪｭ縺ｿ蜿悶ｊ繝・・繧ｿ繧貞酔譛溘＠縺ｾ縺励◆');
+                badge.style.display = 'none';
+                icon.style.animation = '';
+                button.style.display = 'none';
+            }, 1000);
+        }
+        
+        // 繝ｭ繧ｰ繧｢繧ｦ繝亥・逅・        function handleLogout() {
+            isLoggedIn = false;
+            selectedHospitalName = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainLayout').classList.remove('active');
+            resetHospitalSelection();
+        }
+        
+        // 逞・劼驕ｸ謚槭ラ繝ｭ繝・・繝繧ｦ繝ｳ縺ｮ髢矩哩
+        function toggleHospitalDropdown() {
+            const dropdown = document.getElementById('hospitalDropdownList');
+            const overlay = document.getElementById('overlay');
+            
+            if (dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                dropdown.classList.add('active');
+                overlay.classList.add('active');
+                // 繝峨Ο繝・・繝繧ｦ繝ｳ繧帝幕縺・◆縺ｨ縺阪↓譛霑代・逞・劼繝ｪ繧ｹ繝医ｒ譖ｴ譁ｰ
+                updateRecentHospitalsList();
+                // 讀懃ｴ｢繝輔ぅ繝ｼ繝ｫ繝峨↓繝輔か繝ｼ繧ｫ繧ｹ
+                setTimeout(() => {
+                    document.getElementById('hospitalSearchInput').focus();
+                }, 100);
+            }
+        }
+        
+        // 逞・劼驕ｸ謚・        function selectHospital(hospitalName, hospitalLocation) {
+            selectedHospitalName = hospitalName;
+            
+            // 譛霑鷹∈謚槭＠縺溽羅髯｢繝ｪ繧ｹ繝医↓霑ｽ蜉
+            const hospital = { name: hospitalName, location: hospitalLocation };
+            recentHospitals = recentHospitals.filter(h => h.name !== hospitalName);
+            recentHospitals.unshift(hospital);
+            if (recentHospitals.length > 3) {
+                recentHospitals = recentHospitals.slice(0, 3);
+            }
+            localStorage.setItem('recentHospitals', JSON.stringify(recentHospitals));
+            
+            // 繝峨Ο繝・・繝繧ｦ繝ｳ繧帝哩縺倥ｋ
+            document.getElementById('hospitalDropdownList').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            
+            // 讀懃ｴ｢繝輔ぅ繝ｼ繝ｫ繝峨ｒ繧ｯ繝ｪ繧｢
+            document.getElementById('hospitalSearchInput').value = '';
+            
+            // 驕ｸ謚槭＆繧後◆逞・劼蜷阪ｒ陦ｨ遉ｺ
+            document.getElementById('selectedHospital').textContent = hospitalName;
+            
+            // 逞・劼繧ｻ繝ｬ繧ｯ繧ｿ繝ｼ縺ｮ繧ｹ繧ｿ繧､繝ｫ繧貞､画峩
+            const selector = document.getElementById('hospitalSelector');
+            selector.classList.remove('warning');
+            selector.classList.add('success');
+            selector.querySelector('.selector-label').innerHTML = '笨・蟇ｾ雎｡逞・劼・磯∈謚樊ｸ医∩・・;
+            
+            // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繝｡繝九Η繝ｼ繧呈怏蜉ｹ蛹厄ｼ医・繧ｹ繧ｿ邂｡逅・ｻ･螟厄ｼ・            document.getElementById('navMenu').classList.remove('disabled');
+            
+            // 隴ｦ蜻翫ｒ髱櫁｡ｨ遉ｺ縲√え繧ｧ繝ｫ繧ｫ繝繧ｫ繝ｼ繝峨ｒ陦ｨ遉ｺ
+            document.getElementById('alertSection').classList.add('hidden');
+            const welcomeCard = document.getElementById('welcomeCard');
+            welcomeCard.classList.add('active');
+            welcomeCard.querySelector('h2').textContent = `${hospitalName}縺ｮ蛟倶ｽ鍋ｮ｡逅・;
+            
+            // 繧｢繧ｯ繧ｷ繝ｧ繝ｳ繧ｫ繝ｼ繝峨ｒ譛牙柑蛹厄ｼ医・繧ｹ繧ｿ邂｡逅・ｻ･螟厄ｼ・            for (let i = 1; i <= 6; i++) {
+                const card = document.getElementById(`card${i}`);
+                card.classList.remove('disabled');
+                const lockOverlay = card.querySelector('.lock-overlay');
+                if (lockOverlay) {
+                    lockOverlay.style.display = 'none';
+                }
+            }
+            
+            // 繝舌ャ繧ｸ繧定｡ｨ遉ｺ
+            document.getElementById('qrBadge').style.display = 'inline-block';
+            document.getElementById('bottomQrBadge').style.display = 'inline-block';
+            
+            // 蜷梧悄繝懊ち繝ｳ繧定｡ｨ遉ｺ・医が繝輔Λ繧､繝ｳ繝・・繧ｿ縺後≠繧句ｴ蜷茨ｼ・            document.getElementById('syncButton').style.display = 'flex';
+            
+            // 繝懊ヨ繝繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧呈怏蜉ｹ蛹・            document.getElementById('bottomNavQR').classList.remove('disabled');
+        }
+        
+        // 逞・劼驕ｸ謚槭ｒ繝ｪ繧ｻ繝・ヨ
+        function resetHospitalSelection() {
+            selectedHospitalName = null;
+            
+            document.getElementById('selectedHospital').textContent = '逞・劼繧帝∈謚槭＠縺ｦ縺上□縺輔＞';
+            document.getElementById('hospitalSearchInput').value = '';
+            
+            // 逞・劼繝ｪ繧ｹ繝医ｒ蛻晄悄迥ｶ諷九↓謌ｻ縺・            filterHospitals('');
+            updateRecentHospitalsList();
+            
+            const selector = document.getElementById('hospitalSelector');
+            selector.classList.remove('success');
+            selector.classList.add('warning');
+            selector.querySelector('.selector-label').innerHTML = '笞・・蟇ｾ雎｡逞・劼繧帝∈謚・;
+            
+            document.getElementById('navMenu').classList.add('disabled');
+            
+            document.getElementById('alertSection').classList.remove('hidden');
+            document.getElementById('welcomeCard').classList.remove('active');
+            
+            for (let i = 1; i <= 6; i++) {
+                const card = document.getElementById(`card${i}`);
+                card.classList.add('disabled');
+                const lockOverlay = card.querySelector('.lock-overlay');
+                if (lockOverlay) {
+                    lockOverlay.style.display = 'flex';
+                }
+            }
+            
+            document.getElementById('qrBadge').style.display = 'none';
+            document.getElementById('bottomQrBadge').style.display = 'none';
+            document.getElementById('syncButton').style.display = 'none';
+            document.getElementById('bottomNavQR').classList.add('disabled');
+        }
+        
+        // 繝｢繝舌う繝ｫ繝｡繝九Η繝ｼ縺ｮ髢矩哩
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                isMobileMenuOpen = false;
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                isMobileMenuOpen = true;
+            }
+        }
+        
+        // 繝｢繝舌う繝ｫ繝｡繝九Η繝ｼ繧帝哩縺倥ｋ
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const dropdown = document.getElementById('hospitalDropdownList');
+            
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            dropdown.classList.remove('active');
+            isMobileMenuOpen = false;
+        }
+        
+        // 繧ｦ繧｣繝ｳ繝峨え繝ｪ繧ｵ繧､繧ｺ譎ゅ・蜃ｦ逅・        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024 && isMobileMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+        
+        // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧｢繧､繝・Β縺ｮ繧ｯ繝ｪ繝・け蜃ｦ逅・        document.querySelectorAll('.nav-item').forEach(item => {
+            if (!item.onclick) {
+                item.addEventListener('click', function() {
+                    const itemText = this.querySelector('span:last-child').textContent;
+                    const navMenu = document.getElementById('navMenu');
+                    const isDisabled = navMenu.classList.contains('disabled');
+                    
+                    // 繝槭せ繧ｿ邂｡逅・・蟶ｸ縺ｫ譛牙柑縲√◎縺ｮ莉悶・逞・劼驕ｸ謚樊凾縺ｮ縺ｿ
+                    if (itemText === '繝槭せ繧ｿ邂｡逅・ || !isDisabled) {
+                        document.querySelectorAll('.nav-item').forEach(navItem => {
+                            navItem.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // 讖溯・蛻･縺ｮ蜃ｦ逅・                        if (itemText === 'QR繧ｳ繝ｼ繝芽ｪｭ縺ｿ蜿悶ｊ') {
+                            showLocationInputScreen();
+                        } else if (itemText === '雉・肇荳隕ｧ') {
+                            showAssetListScreen();
+                        } else if (itemText === '繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・) {
+                            showUserManagementScreen();
+                        }
+                        
+                        // 繝｢繝舌う繝ｫ縺ｮ蝣ｴ蜷医・繝｡繝九Η繝ｼ繧帝哩縺倥ｋ
+                        if (window.innerWidth <= 1024) {
+                            closeMobileMenu();
+                        }
+                    }
+                });
+            }
+        });
+        
+        // 繧｢繧ｯ繧ｷ繝ｧ繝ｳ繧ｫ繝ｼ繝峨・繧ｯ繝ｪ繝・け蜃ｦ逅・        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    const cardTitle = this.querySelector('.action-title').textContent;
+                    if (cardTitle === 'QR繧ｳ繝ｼ繝芽ｪｭ縺ｿ蜿悶ｊ') {
+                        showLocationInputScreen();
+                    } else if (cardTitle === '雉・肇荳隕ｧ') {
+                        showAssetListScreen();
+                    } else if (cardTitle === '繝槭せ繧ｿ邂｡逅・) {
+                        showMasterManagementScreen();
+                    } else if (cardTitle === '繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・) {
+                        showUserManagementScreen();
+                    } else {
+                        alert('縺薙・讖溯・縺ｯ髢狗匱荳ｭ縺ｧ縺・);
+                    }
+                }
+            });
+        });
+        
+        // 繝懊ヨ繝繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ繧ｯ繝ｪ繝・け蜃ｦ逅・        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!this.classList.contains('disabled')) {
+                    e.preventDefault();
+                    if (this.id === 'bottomNavQR') {
+                        showLocationInputScreen();
+                    } else {
+                        document.querySelectorAll('.bottom-nav-item').forEach(navItem => {
+                            navItem.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    }
+                }
+            });
+        });
+        
+        // 繝壹・繧ｸ繝ｭ繝ｼ繝画凾縺ｫ譛霑代・逞・劼繝ｪ繧ｹ繝医ｒ隱ｭ縺ｿ霎ｼ縺ｿ
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecentHospitals();
+        });
+        
+        // 繝峨く繝･繝｡繝ｳ繝医け繝ｪ繝・け譎ゅ↓繝｡繝九Η繝ｼ繧帝哩縺倥ｋ
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (!userMenu.contains(event.target) && userDropdown.classList.contains('active')) {
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        // 隱ｿ譟ｻ蝣ｴ謇蜈･蜉帷判髱｢繧定｡ｨ遉ｺ
+        function showLocationInputScreen() {
+            document.getElementById('locationInputScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+            
+            // 莉頑律縺ｮ譌･莉倥ｒ險ｭ螳・            const today = new Date();
+            const dateStr = `${today.getFullYear()}蟷ｴ${(today.getMonth() + 1)}譛・{today.getDate()}譌･`;
+            document.getElementById('surveyDate').textContent = dateStr;
+            
+            // Category縺ｮ蜈･蜉帙ヵ繧｣繝ｼ繝ｫ繝峨う繝吶Φ繝郁ｨｭ螳・            setupCategoryInput();
+            
+            // 繝輔か繝ｼ繝縺ｮ螟画峩繧堤屮隕・            setupFormValidation();
+        }
+        
+        // 隱ｿ譟ｻ蝣ｴ謇蜈･蜉帷判髱｢繧帝撼陦ｨ遉ｺ
+        function hideLocationInputScreen() {
+            document.getElementById('locationInputScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // Category縺ｮ蜈･蜉幄ｨｭ螳・        function setupCategoryInput() {
+            const input = document.getElementById('categoryInput');
+            const dropdown = document.getElementById('categoryDropdown');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            
+            // 蜈･蜉帙ヵ繧｣繝ｼ繝ｫ繝峨ヵ繧ｩ繝ｼ繧ｫ繧ｹ譎・            input.addEventListener('focus', function() {
+                dropdown.classList.add('active');
+            });
+            
+            // 蜈･蜉帙ヵ繧｣繝ｼ繝ｫ繝峨・蛟､螟画峩譎ゑｼ医≠縺・∪縺・､懃ｴ｢・・            input.addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+                let hasVisibleItem = false;
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchValue)) {
+                        item.style.display = 'block';
+                        hasVisibleItem = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                dropdown.classList.toggle('active', hasVisibleItem);
+            });
+            
+            // 繝峨Ο繝・・繝繧ｦ繝ｳ繧｢繧､繝・Β繧ｯ繝ｪ繝・け譎・            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    input.value = this.textContent;
+                    dropdown.classList.remove('active');
+                    validateForm();
+                });
+            });
+            
+            // 螟門・繧ｯ繝ｪ繝・け譎ゅ↓繝峨Ο繝・・繝繧ｦ繝ｳ繧帝哩縺倥ｋ
+            document.addEventListener('click', function(event) {
+                if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+        
+        // 繝輔か繝ｼ繝繝舌Μ繝・・繧ｷ繝ｧ繝ｳ險ｭ螳・        function setupFormValidation() {
+            const form = document.getElementById('locationForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('change', validateForm);
+                input.addEventListener('input', validateForm);
+            });
+        }
+        
+        // 繝輔か繝ｼ繝繝舌Μ繝・・繧ｷ繝ｧ繝ｳ
+        function validateForm() {
+            const categoryInput = document.getElementById('categoryInput').value;
+            const buildingSelect = document.getElementById('buildingSelect').value;
+            const floorSelect = document.getElementById('floorSelect').value;
+            const departmentSelect = document.getElementById('departmentSelect').value;
+            const sectionSelect = document.getElementById('sectionSelect').value;
+            const nextButton = document.getElementById('nextButton');
+            
+            // 縺吶∋縺ｦ縺ｮ蠢・磯・岼縺悟・蜉帙＆繧後※縺・ｋ縺九メ繧ｧ繝・け
+            const isValid = categoryInput && buildingSelect && floorSelect && departmentSelect && sectionSelect;
+            
+            nextButton.disabled = !isValid;
+        }
+        
+        // 谺｡縺ｸ繝懊ち繝ｳ繧ｯ繝ｪ繝・け蜃ｦ逅・        function handleNext() {
+            const formData = {
+                surveyDate: document.getElementById('surveyDate').textContent,
+                category: document.getElementById('categoryInput').value,
+                building: document.getElementById('buildingSelect').value,
+                floor: document.getElementById('floorSelect').value,
+                department: document.getElementById('departmentSelect').value,
+                section: document.getElementById('sectionSelect').value
+            };
+            
+            console.log('隱ｿ譟ｻ蝣ｴ謇繝・・繧ｿ:', formData);
+            alert('QR繧ｳ繝ｼ繝芽ｪｭ蜿也判髱｢縺ｸ驕ｷ遘ｻ縺励∪縺呻ｼ磯幕逋ｺ荳ｭ・噂n\n蜈･蜉帙ョ繝ｼ繧ｿ:\n' + JSON.stringify(formData, null, 2));
+        }
+        
+        // 繝槭せ繧ｿ邂｡逅・∈謚樒判髱｢繧定｡ｨ遉ｺ
+        function showMasterManagementScreen() {
+            document.getElementById('masterManagementScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+        }
+        
+        // 繝槭せ繧ｿ邂｡逅・∈謚樒判髱｢繧帝撼陦ｨ遉ｺ
+        function hideMasterManagementScreen() {
+            document.getElementById('masterManagementScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // 繝槭せ繧ｿ驕ｸ謚槫・逅・        function handleMasterSelect(masterType) {
+            alert(`${masterType}邂｡逅・判髱｢縺ｸ驕ｷ遘ｻ縺励∪縺呻ｼ磯幕逋ｺ荳ｭ・荏);
+        }
+        
+        // 繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・判髱｢繧定｡ｨ遉ｺ
+        function showUserManagementScreen() {
+            document.getElementById('userManagementScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+        }
+        
+        // 繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・判髱｢繧帝撼陦ｨ遉ｺ
+        function hideUserManagementScreen() {
+            document.getElementById('userManagementScreen').classList.remove('active');
+            document.getElementById('mainLayout').style.display = 'flex';
+        }
+        
+        // 雉・肇荳隕ｧ逕ｻ髱｢繧定｡ｨ遉ｺ
+        function showAssetListScreen() {
+            const loginId = document.getElementById('login-id').value;
+            const hospitalName = selectedHospitalName || '譚ｱ莠ｬ邱丞粋逞・劼';
+            document.getElementById('hospitalNameInAsset').textContent = hospitalName;
+            
+            // 逞・劼繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ蝣ｴ蜷医・謌ｻ繧九・繧ｿ繝ｳ繧偵後Ο繧ｰ繧｢繧ｦ繝医阪↓螟画峩
+            if (loginId.includes('@hospital')) {
+                document.getElementById('assetBackButtonText').textContent = '繝ｭ繧ｰ繧｢繧ｦ繝・;
+            } else {
+                document.getElementById('assetBackButtonText').textContent = '謌ｻ繧・;
+            }
+            
+            document.getElementById('assetListScreen').classList.add('active');
+            document.getElementById('mainLayout').style.display = 'none';
+            document.getElementById('mainLayout').classList.remove('active');
+        }
+        
+        // 雉・肇荳隕ｧ逕ｻ髱｢繧帝撼陦ｨ遉ｺ
+        function hideAssetListScreen() {
+            const loginId = document.getElementById('login-id').value;
+            document.getElementById('assetListScreen').classList.remove('active');
+            
+            // 逞・劼繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ蝣ｴ蜷医・謌ｻ繧九・繧ｿ繝ｳ縺ｧ繝ｭ繧ｰ繧｢繧ｦ繝・            if (loginId.includes('@hospital')) {
+                // 繝ｭ繧ｰ繧｢繧ｦ繝亥・逅・                isLoggedIn = false;
+                selectedHospitalName = null;
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('login-id').value = '';
+                document.getElementById('password').value = '';
+                alert('繝ｭ繧ｰ繧｢繧ｦ繝医＠縺ｾ縺励◆');
+            } else {
+                // 繧ｳ繝ｳ繧ｵ繝ｫ繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ蝣ｴ蜷医・繝｡繝九Η繝ｼ逕ｻ髱｢縺ｫ謌ｻ繧・                document.getElementById('mainLayout').style.display = 'flex';
+                document.getElementById('mainLayout').classList.add('active');
+            }
+        }
+        
+        // 繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・未騾｣縺ｮ蜃ｦ逅・        function handleAddUser() {
+            alert('譁ｰ隕上Θ繝ｼ繧ｶ繝ｼ逋ｻ骭ｲ逕ｻ髱｢縺ｸ驕ｷ遘ｻ縺励∪縺呻ｼ磯幕逋ｺ荳ｭ・・);
+        }
+        
+        function handleEditUser(userId) {
+            alert(`繝ｦ繝ｼ繧ｶ繝ｼ ${userId} 縺ｮ邱ｨ髮・判髱｢縺ｸ驕ｷ遘ｻ縺励∪縺呻ｼ磯幕逋ｺ荳ｭ・荏);
+        }
+        
+        function handleDeleteUser(userId) {
+            if (confirm(`繝ｦ繝ｼ繧ｶ繝ｼ ${userId} 繧貞炎髯､縺励※繧医ｍ縺励＞縺ｧ縺吶°・歔)) {
+                alert('繝ｦ繝ｼ繧ｶ繝ｼ繧貞炎髯､縺励∪縺励◆・医す繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ・・);
+            }
+        }
+        
+        // 雉・肇荳隕ｧ髢｢騾｣縺ｮ蜃ｦ逅・        function handleExport() {
+            alert('雉・肇荳隕ｧ繧偵お繧ｯ繧ｹ繝昴・繝医＠縺ｾ縺呻ｼ磯幕逋ｺ荳ｭ・・);
+        }
+        
+        function showHospitalUserManagement() {
+            alert('逞・劼繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・判髱｢縺ｸ驕ｷ遘ｻ縺励∪縺呻ｼ磯幕逋ｺ荳ｭ・・);
+        }
+    </script>
+</body>
+</html>

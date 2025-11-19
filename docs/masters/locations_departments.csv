@@ -1,0 +1,4 @@
+id,buildingId,floorId,name
+D001,B001,F001,内科
+D002,B001,F002,放射線科
+D003,B002,F003,外来受付

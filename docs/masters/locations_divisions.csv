@@ -1,0 +1,4 @@
+id,buildingId,floorId,departmentId,name
+V001,B001,F001,D001,内科第1チーム
+V002,B001,F002,D002,画像班
+V003,B002,F003,D003,受付B担当

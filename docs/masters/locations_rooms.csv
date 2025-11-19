@@ -1,0 +1,4 @@
+roomId,name,buildingId,floorId,departmentId,divisionId
+R001,中央診療棟1階 南ナースステーション,B001,F001,D001,V001
+R002,中央診療棟2階 放射線受付,B001,F002,D002,V002
+R003,外来センター1階 受付カウンター,B002,F003,D003,V003
