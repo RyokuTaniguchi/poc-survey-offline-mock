@@ -314,10 +314,11 @@ export default function SurveyAllPage() {
   const [sealNo, setSealNo] = useState("");
   const [roomName, setRoomName] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomOptionsOpen, setRoomOptionsOpen] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkStartSealNo, setBulkStartSealNo] = useState("");
-  const [bulkCount, setBulkCount] = useState("");
-  const [qrTarget, setQrTarget] = useState<"single" | "bulkStart">("single");
+  const [bulkEndSealNo, setBulkEndSealNo] = useState("");
+  const [qrTarget, setQrTarget] = useState<"single" | "bulkStart" | "bulkEnd">("single");
 
   useEffect(() => {
     setSealNo((current?.fields?.sealNo as string) ?? "");
@@ -351,16 +352,19 @@ export default function SurveyAllPage() {
   const roomDivisionId = current?.fields?.divisionId as string | undefined;
 
   const roomSuggestions = useMemo(() => {
-    if (!roomBuildingId || !roomFloorId || !roomDepartmentId || !roomDivisionId) return [];
     const query = roomName.trim().toLowerCase();
-    return rooms.filter((room) => {
-      if (room.buildingId !== roomBuildingId) return false;
-      if (room.floorId !== roomFloorId) return false;
-      if (room.departmentId !== roomDepartmentId) return false;
-      if (room.divisionId !== roomDivisionId) return false;
-      if (!query) return true;
-      return room.name.toLowerCase().includes(query);
-    });
+    let base = rooms;
+    if (roomBuildingId && roomFloorId && roomDepartmentId && roomDivisionId) {
+      base = base.filter((room) => {
+        if (room.buildingId !== roomBuildingId) return false;
+        if (room.floorId !== roomFloorId) return false;
+        if (room.departmentId !== roomDepartmentId) return false;
+        if (room.divisionId !== roomDivisionId) return false;
+        return true;
+      });
+    }
+    if (!query) return base;
+    return base.filter((room) => room.name.toLowerCase().includes(query));
   }, [rooms, roomBuildingId, roomFloorId, roomDepartmentId, roomDivisionId, roomName]);
 
   const handleQrResult = (text: string) => {
@@ -371,6 +375,10 @@ export default function SurveyAllPage() {
     const extracted = (urlMatch && urlMatch[1]) || (uuidMatch && uuidMatch[0]) || trimmed;
     if (qrTarget === "bulkStart") {
       setBulkStartSealNo(extracted);
+      void setFields({ bulkStartSealNo: extracted });
+    } else if (qrTarget === "bulkEnd") {
+      setBulkEndSealNo(extracted);
+      void setFields({ bulkEndSealNo: extracted });
     } else {
       setSealNo(extracted);
       void setQR(extracted);
@@ -385,6 +393,7 @@ export default function SurveyAllPage() {
   const handleRoomChange = (value: string) => {
     setRoomName(value);
     void setFields({ roomName: value });
+    setRoomOptionsOpen(false);
   };
 
   const handleBulkModeChange = (checked: boolean) => {
@@ -393,6 +402,8 @@ export default function SurveyAllPage() {
       // 単体モード → 一括モード
       if (sealNo.trim()) {
         setBulkStartSealNo(sealNo);
+        setBulkEndSealNo(sealNo);
+        void setFields({ bulkStartSealNo: sealNo, bulkEndSealNo: sealNo });
       }
     } else {
       // 一括モード → 単体モード
@@ -400,18 +411,35 @@ export default function SurveyAllPage() {
         setSealNo(bulkStartSealNo);
         void setFields({ sealNo: bulkStartSealNo, qrCode: bulkStartSealNo });
       }
+      // モード解除時、開始/終了入力は残すが QR への書き戻しのみ行う
     }
+  };
+
+  const getBulkCount = (start: string, end: string) => {
+    const startMatch = start.match(/(\d+)(?!.*\d)/);
+    const endMatch = end.match(/(\d+)(?!.*\d)/);
+    if (!startMatch || !endMatch || startMatch.index === undefined || endMatch.index === undefined) return null;
+    const startNum = Number.parseInt(startMatch[1], 10);
+    const endNum = Number.parseInt(endMatch[1], 10);
+    const digitLen = startMatch[1].length;
+    const sameDigits = endMatch[1].length === digitLen;
+    const startPrefix = start.slice(0, startMatch.index);
+    const startSuffix = start.slice(startMatch.index + digitLen);
+    const endPrefix = end.slice(0, endMatch.index);
+    const endSuffix = end.slice(endMatch.index + endMatch[1].length);
+    const samePrefixSuffix = startPrefix === endPrefix && startSuffix === endSuffix;
+    if (!sameDigits || !samePrefixSuffix || endNum < startNum) return null;
+    return endNum - startNum + 1;
   };
 
   const readyLabel = useMemo(() => {
     const roomOk = roomName.trim().length > 0;
     const sealOk = sealNo.trim().length > 0;
-    const bulkStartOk = bulkStartSealNo.trim().length > 0;
-    const bulkCountNum = Number.parseInt(bulkCount, 10);
-    const bulkOk = bulkMode && bulkStartOk && Number.isFinite(bulkCountNum) && bulkCountNum > 0;
+    const bulkCount = getBulkCount(bulkStartSealNo.trim(), bulkEndSealNo.trim());
+    const bulkOk = bulkMode && bulkCount !== null && bulkCount > 0;
     const singleOk = !bulkMode && sealOk;
     return roomOk && (singleOk || bulkOk);
-  }, [bulkMode, bulkCount, bulkStartSealNo, roomName, sealNo]);
+  }, [bulkMode, bulkStartSealNo, bulkEndSealNo, roomName, sealNo]);
 
   // ===== 資産No / 写真 セクション =====
   const assetFileInputRef = useRef<HTMLInputElement>(null);
@@ -434,7 +462,9 @@ export default function SurveyAllPage() {
     setPurchaseDate((current?.fields?.purchaseDate as string) ?? "");
     setLease(Boolean(current?.fields?.leaseFlag));
     setLoaned(Boolean(current?.fields?.loanedFlag));
-  }, [current?.fields?.assetNo, current?.fields?.equipmentNo, current?.fields?.purchaseDate, current?.fields?.leaseFlag, current?.fields?.loanedFlag]);
+    setBulkStartSealNo((current?.fields?.bulkStartSealNo as string) ?? "");
+    setBulkEndSealNo((current?.fields?.bulkEndSealNo as string) ?? "");
+  }, [current?.fields?.assetNo, current?.fields?.equipmentNo, current?.fields?.purchaseDate, current?.fields?.leaseFlag, current?.fields?.loanedFlag, current?.fields?.bulkStartSealNo, current?.fields?.bulkEndSealNo]);
 
   const thumbUrls = useMemo(() => {
     return photos.map((photo) => ({
@@ -507,6 +537,11 @@ export default function SurveyAllPage() {
   const [itemQuery, setItemQuery] = useState("");
   const [makerQuery, setMakerQuery] = useState("");
   const [modelQuery, setModelQuery] = useState("");
+  const [categoryOptionsOpen, setCategoryOptionsOpen] = useState(false);
+  const [subcategoryOptionsOpen, setSubcategoryOptionsOpen] = useState(false);
+  const [itemOptionsOpen, setItemOptionsOpen] = useState(false);
+  const [makerOptionsOpen, setMakerOptionsOpen] = useState(false);
+  const [modelOptionsOpen, setModelOptionsOpen] = useState(false);
 
   const [w, setW] = useState("");
   const [d, setD] = useState("");
@@ -584,46 +619,133 @@ export default function SurveyAllPage() {
     () => categories.filter((c) => includesQuery(c.name, categoryQuery)),
     [categories, categoryQuery]
   );
-  const filteredSubcategories = useMemo(
-    () => subcategories.filter((s) => includesQuery(s.name, subcategoryQuery)),
-    [subcategories, subcategoryQuery]
-  );
-  const filteredItems = useMemo(
-    () => items.filter((it) => includesQuery(it.name, itemQuery)),
-    [items, itemQuery]
-  );
-  const filteredMakers = useMemo(
-    () => makers.filter((mk) => includesQuery(mk.name, makerQuery)),
-    [makers, makerQuery]
-  );
-  const filteredModels = useMemo(
-    () => models.filter((md) => includesQuery(md.name, modelQuery)),
-    [models, modelQuery]
-  );
+  const resolvedCategoryId = useMemo(() => {
+    if (categoryId) return categoryId;
+    const name = categoryQuery.trim().toLowerCase();
+    if (!name) return null;
+    const match = categories.find((c) => c.name.toLowerCase() === name);
+    return match?.id ?? null;
+  }, [categories, categoryId, categoryQuery]);
+
+  const filteredSubcategories = useMemo(() => {
+    const base = resolvedCategoryId
+      ? subcategories.filter((s) => s.categoryId === resolvedCategoryId)
+      : subcategories;
+    return base.filter((s) => includesQuery(s.name, subcategoryQuery));
+  }, [resolvedCategoryId, subcategories, subcategoryQuery]);
+
+  const resolvedSubcategoryId = useMemo(() => {
+    if (subcategoryId) return subcategoryId;
+    const name = subcategoryQuery.trim().toLowerCase();
+    if (!name || !resolvedCategoryId) return null;
+    const match = subcategories.find(
+      (s) => s.categoryId === resolvedCategoryId && s.name.toLowerCase() === name
+    );
+    return match?.id ?? null;
+  }, [resolvedCategoryId, subcategories, subcategoryId, subcategoryQuery]);
+
+  const filteredItems = useMemo(() => {
+    const base = resolvedSubcategoryId
+      ? items.filter((it) => it.subcategoryId === resolvedSubcategoryId)
+      : items;
+    return base.filter((it) => includesQuery(it.name, itemQuery));
+  }, [resolvedSubcategoryId, items, itemQuery]);
+
+  const resolvedItemId = useMemo(() => {
+    if (itemId) return itemId;
+    const name = itemQuery.trim().toLowerCase();
+    if (!name || !resolvedSubcategoryId) return null;
+    const match = items.find(
+      (it) => it.subcategoryId === resolvedSubcategoryId && it.name.toLowerCase() === name
+    );
+    return match?.id ?? null;
+  }, [resolvedSubcategoryId, items, itemId, itemQuery]);
+
+  const filteredMakers = useMemo(() => {
+    const base = resolvedItemId ? makers.filter((mk) => mk.itemId === resolvedItemId) : makers;
+    return base.filter((mk) => includesQuery(mk.name, makerQuery));
+  }, [resolvedItemId, makers, makerQuery]);
+
+  const resolvedMakerId = useMemo(() => {
+    if (makerId) return makerId;
+    const name = makerQuery.trim().toLowerCase();
+    if (!name || !resolvedItemId) return null;
+    const match = makers.find(
+      (mk) => mk.itemId === resolvedItemId && mk.name.toLowerCase() === name
+    );
+    return match?.id ?? null;
+  }, [resolvedItemId, makers, makerId, makerQuery]);
+
+  const filteredModels = useMemo(() => {
+    const base = resolvedMakerId ? models.filter((md) => md.makerId === resolvedMakerId) : models;
+    return base.filter((md) => includesQuery(md.name, modelQuery));
+  }, [resolvedMakerId, models, modelQuery]);
 
   const handleCategoryQueryChange = (value: string) => {
     setCategoryQuery(value);
-    void setFields({ categoryName: value });
+    setSubcategoryQuery("");
+    setItemQuery("");
+    setMakerQuery("");
+    setModelQuery("");
+    void setFields({
+      categoryName: value,
+      categoryId: undefined,
+      subcategoryId: undefined,
+      subcategoryName: undefined,
+      itemId: undefined,
+      itemName: undefined,
+      makerId: undefined,
+      makerName: undefined,
+      modelId: undefined,
+      modelName: undefined,
+    });
   };
 
   const handleSubcategoryQueryChange = (value: string) => {
     setSubcategoryQuery(value);
-    void setFields({ subcategoryName: value });
+    setItemQuery("");
+    setMakerQuery("");
+    setModelQuery("");
+    void setFields({
+      subcategoryName: value,
+      subcategoryId: undefined,
+      itemId: undefined,
+      itemName: undefined,
+      makerId: undefined,
+      makerName: undefined,
+      modelId: undefined,
+      modelName: undefined,
+    });
   };
 
   const handleItemQueryChange = (value: string) => {
     setItemQuery(value);
-    void setFields({ itemName: value });
+    setMakerQuery("");
+    setModelQuery("");
+    void setFields({
+      itemName: value,
+      itemId: undefined,
+      makerId: undefined,
+      makerName: undefined,
+      modelId: undefined,
+      modelName: undefined,
+    });
   };
 
   const handleMakerQueryChange = (value: string) => {
     setMakerQuery(value);
-    void setFields({ makerName: value });
+    setModelQuery("");
+    void setFields({
+      makerName: value,
+      makerId: undefined,
+      modelId: undefined,
+      modelName: undefined,
+    });
   };
 
   const handleModelQueryChange = (value: string) => {
     setModelQuery(value);
-    void setFields({ modelName: value });
+    void setFields({ modelName: value, modelId: undefined });
   };
 
   const selectCategory = (category: ProductCategory) => {
@@ -652,6 +774,7 @@ export default function SurveyAllPage() {
     setItemQuery("");
     setMakerQuery("");
     setModelQuery("");
+    setCategoryOptionsOpen(false);
     void setFields({
       categoryId: category.id,
       categoryName: category.name,
@@ -689,6 +812,7 @@ export default function SurveyAllPage() {
     setItemQuery("");
     setMakerQuery("");
     setModelQuery("");
+    setSubcategoryOptionsOpen(false);
     void setFields({
       categoryId: subcategory.categoryId,
       subcategoryId: subcategory.id,
@@ -722,6 +846,7 @@ export default function SurveyAllPage() {
     setItemQuery(item.name);
     setMakerQuery("");
     setModelQuery("");
+    setItemOptionsOpen(false);
     void setFields({
       categoryId: item.categoryId,
       subcategoryId: item.subcategoryId,
@@ -751,6 +876,7 @@ export default function SurveyAllPage() {
     }
     setMakerQuery(maker.name);
     setModelQuery("");
+    setMakerOptionsOpen(false);
     void setFields({
       categoryId: maker.categoryId,
       subcategoryId: maker.subcategoryId,
@@ -776,6 +902,7 @@ export default function SurveyAllPage() {
       return;
     }
     setModelQuery(model.name);
+    setModelOptionsOpen(false);
     void setFields({
       categoryId: model.categoryId,
       subcategoryId: model.subcategoryId,
@@ -892,9 +1019,10 @@ export default function SurveyAllPage() {
     }
 
     const start = bulkStartSealNo.trim();
-    const count = Number.parseInt(bulkCount, 10);
-    if (!start || !Number.isFinite(count) || count <= 0) {
-      alert("一括登録モードでは、開始シールNoと1以上の登録個数を入力してください。");
+    const end = bulkEndSealNo.trim();
+    const count = getBulkCount(start, end);
+    if (!count || count <= 0) {
+      alert("一括登録モードでは、開始・終了シールNoを連番で入力してください。");
       return;
     }
     if (!current) return;
@@ -927,10 +1055,8 @@ export default function SurveyAllPage() {
 
   return (
     <div className="page">
-      {/* QR・ラベルNo */}
       <div className="page-section">
-        <h2 className="section-title">QR読取・基本情報</h2>
-        <div className="section-title-underline-blue" />
+        {/* QR・ラベルNo */}
         <div className="grid">
           <label>
             登録モード
@@ -945,44 +1071,32 @@ export default function SurveyAllPage() {
             </div>
           </label>
           {bulkMode ? (
-            <>
-              <label>
-                開始シールNo
-                <div className="input-with-action">
-                  <input
-                    value={bulkStartSealNo}
-                    onChange={(e) => setBulkStartSealNo(e.target.value)}
-                    placeholder="開始シールNoを入力"
-                  />
-                  <button
-                    type="button"
-                    className="ghost input-action"
-                    onClick={async () => {
-                      try {
-                        setQrTarget("bulkStart");
-                        await ensureCameraAccess();
-                        await scannerRef.current?.start();
-                      } catch (err) {
-                        const message = err instanceof Error ? err.message : String(err);
-                        alert(`カメラを利用できませんでした: ${message}`);
-                      }
-                    }}
-                  >
-                    QR撮影
-                  </button>
-                </div>
-              </label>
-              <label>
-                登録個数
+            <label>
+              開始シールNo
+              <div className="input-with-action">
                 <input
-                  type="number"
-                  min={1}
-                  value={bulkCount}
-                  onChange={(e) => setBulkCount(e.target.value)}
-                  placeholder="個数を入力（例：椅子50脚の場合は「50」と入力）"
+                  value={bulkStartSealNo}
+                  onChange={(e) => { const value = e.target.value; setBulkStartSealNo(value); void setFields({ bulkStartSealNo: value }); }}
+                  placeholder="開始シールNoを入力"
                 />
-              </label>
-            </>
+                <button
+                  type="button"
+                  className="ghost input-action"
+                  onClick={async () => {
+                    try {
+                      setQrTarget("bulkStart");
+                      await ensureCameraAccess();
+                      await scannerRef.current?.start();
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      alert(`カメラを利用できませんでした: ${message}`);
+                    }
+                  }}
+                >
+                  QR撮影
+                </button>
+              </div>
+            </label>
           ) : (
             <label>
               シールNo
@@ -1013,8 +1127,22 @@ export default function SurveyAllPage() {
           )}
           <label>
             室名
-            <input value={roomName} onChange={(e) => handleRoomChange(e.target.value)} placeholder="室名を入力" />
-            {roomSuggestions.length > 0 && (
+            <input
+              value={roomName}
+              onChange={(e) => {
+                setRoomName(e.target.value);
+                void setFields({ roomName: e.target.value });
+                setRoomOptionsOpen(true);
+              }}
+              onFocus={() => setRoomOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setRoomOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="室名を入力"
+            />
+            {roomOptionsOpen && roomSuggestions.length > 0 && (
               <div className="option-list" style={{ marginTop: 6 }}>
                 {roomSuggestions.map((room) => (
                   <button
@@ -1032,12 +1160,10 @@ export default function SurveyAllPage() {
         <div style={{ marginTop: 16 }}>
           <QRScanner ref={scannerRef} onResult={handleQrResult} />
         </div>
-      </div>
 
-      {/* 写真撮影・資産No */}
-      <div className="page-section">
-        <h2 className="section-title">写真撮影・資産番号</h2>
-        <div className="section-title-underline-blue" />
+        <div className="section-title-underline-blue" style={{ margin: "20px 0" }} />
+
+        {/* 写真撮影・資産No */}
         <input
           type="file"
           accept="image/*"
@@ -1117,68 +1243,141 @@ export default function SurveyAllPage() {
           )}
         </div>
         {ocrNotice && <div className="ocr-result-banner">{ocrNotice}</div>}
-      </div>
 
-      {/* 商品登録 */}
-      <div className="page-section">
-        <h2 className="section-title">資産情報登録</h2>
-        <div className="section-title-underline-blue" />
+        <div className="section-title-underline-blue" style={{ margin: "20px 0" }} />
+
+        {/* 資産情報登録 */}
         <div className="grid">
           <label>
             大分類
-            <input value={categoryQuery} onChange={(e) => handleCategoryQueryChange(e.target.value)} placeholder="大分類を検索" />
+            <input
+              value={categoryQuery}
+              onChange={(e) => {
+                handleCategoryQueryChange(e.target.value);
+                setCategoryOptionsOpen(true);
+              }}
+              onFocus={() => setCategoryOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setCategoryOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="大分類を検索"
+            />
           </label>
-          <div className="option-list">
-            {filteredCategories.map((category) => (
-              <button key={category.id} onClick={() => selectCategory(category)} className={category.id === categoryId ? "active" : ""}>
-                {category.name}
-              </button>
-            ))}
-          </div>
+          {categoryOptionsOpen && filteredCategories.length > 0 && (
+            <div className="option-list">
+              {filteredCategories.map((category) => (
+                <button key={category.id} onClick={() => selectCategory(category)} className={category.id === categoryId ? "active" : ""}>
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
           <label>
             中分類
-            <input value={subcategoryQuery} onChange={(e) => handleSubcategoryQueryChange(e.target.value)} placeholder="中分類を検索" />
+            <input
+              value={subcategoryQuery}
+              onChange={(e) => {
+                handleSubcategoryQueryChange(e.target.value);
+                setSubcategoryOptionsOpen(true);
+              }}
+              onFocus={() => setSubcategoryOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setSubcategoryOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="中分類を検索"
+            />
           </label>
-          <div className="option-list">
-            {filteredSubcategories.map((subcategory) => (
-              <button key={subcategory.id} onClick={() => selectSubcategory(subcategory)} className={subcategory.id === subcategoryId ? "active" : ""}>
-                {subcategory.name}
-              </button>
-            ))}
-          </div>
+          {subcategoryOptionsOpen && filteredSubcategories.length > 0 && (
+            <div className="option-list">
+              {filteredSubcategories.map((subcategory) => (
+                <button key={subcategory.id} onClick={() => selectSubcategory(subcategory)} className={subcategory.id === subcategoryId ? "active" : ""}>
+                  {subcategory.name}
+                </button>
+              ))}
+            </div>
+          )}
           <label>
             品目
-            <input value={itemQuery} onChange={(e) => handleItemQueryChange(e.target.value)} placeholder="品目を検索" />
+            <input
+              value={itemQuery}
+              onChange={(e) => {
+                handleItemQueryChange(e.target.value);
+                setItemOptionsOpen(true);
+              }}
+              onFocus={() => setItemOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setItemOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="品目を検索"
+            />
           </label>
-          <div className="option-list">
-            {filteredItems.map((item) => (
-              <button key={item.id} onClick={() => selectItem(item)} className={item.id === itemId ? "active" : ""}>
-                {item.name}
-              </button>
-            ))}
-          </div>
+          {itemOptionsOpen && filteredItems.length > 0 && (
+            <div className="option-list">
+              {filteredItems.map((item) => (
+                <button key={item.id} onClick={() => selectItem(item)} className={item.id === itemId ? "active" : ""}>
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
           <label>
             メーカー名
-            <input value={makerQuery} onChange={(e) => handleMakerQueryChange(e.target.value)} placeholder="メーカー名を検索" />
+            <input
+              value={makerQuery}
+              onChange={(e) => {
+                handleMakerQueryChange(e.target.value);
+                setMakerOptionsOpen(true);
+              }}
+              onFocus={() => setMakerOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setMakerOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="メーカー名を検索"
+            />
           </label>
-          <div className="option-list">
-            {filteredMakers.map((maker) => (
-              <button key={maker.id} onClick={() => selectMaker(maker)} className={maker.id === makerId ? "active" : ""}>
-                {maker.name}
-              </button>
-            ))}
-          </div>
+          {makerOptionsOpen && filteredMakers.length > 0 && (
+            <div className="option-list">
+              {filteredMakers.map((maker) => (
+                <button key={maker.id} onClick={() => selectMaker(maker)} className={maker.id === makerId ? "active" : ""}>
+                  {maker.name}
+                </button>
+              ))}
+            </div>
+          )}
           <label>
             型式
-            <input value={modelQuery} onChange={(e) => handleModelQueryChange(e.target.value)} placeholder="型式を検索" />
+            <input
+              value={modelQuery}
+              onChange={(e) => {
+                handleModelQueryChange(e.target.value);
+                setModelOptionsOpen(true);
+              }}
+              onFocus={() => setModelOptionsOpen(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setModelOptionsOpen(false);
+                }, 100);
+              }}
+              placeholder="型式を検索"
+            />
           </label>
-          <div className="option-list">
-            {filteredModels.map((model) => (
-              <button key={model.id} onClick={() => selectModel(model)} className={model.id === modelId ? "active" : ""}>
-                {model.name}
-              </button>
-            ))}
-          </div>
+          {modelOptionsOpen && filteredModels.length > 0 && (
+            <div className="option-list">
+              {filteredModels.map((model) => (
+                <button key={model.id} onClick={() => selectModel(model)} className={model.id === modelId ? "active" : ""}>
+                  {model.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="grid" style={{ marginTop: 16 }}>
           <div className="asset-size-row">
@@ -1200,6 +1399,36 @@ export default function SurveyAllPage() {
             <textarea value={note} onChange={(e) => { const value = e.target.value; setNote(value); void setFields({ note: value }); }} rows={3} />
           </label>
         </div>
+        {bulkMode && (
+          <div className="grid" style={{ marginTop: 12 }}>
+            <label>
+              終了シールNo
+              <div className="input-with-action">
+                <input
+                  value={bulkEndSealNo}
+                  onChange={(e) => { const value = e.target.value; setBulkEndSealNo(value); void setFields({ bulkEndSealNo: value }); }}
+                  placeholder="終了シールNoを入力"
+                />
+                <button
+                  type="button"
+                  className="ghost input-action"
+                  onClick={async () => {
+                    try {
+                      setQrTarget("bulkEnd");
+                      await ensureCameraAccess();
+                      await scannerRef.current?.start();
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      alert(`カメラを利用できませんでした: ${message}`);
+                    }
+                  }}
+                >
+                  QR撮影
+                </button>
+              </div>
+            </label>
+          </div>
+        )}
       </div>
 
       {/* 全体フッター */}
