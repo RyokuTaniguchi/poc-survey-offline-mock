@@ -7,6 +7,7 @@ import SurveyLabel from "./pages/survey/Label";
 import SurveyAsset from "./pages/survey/Asset";
 import SurveyProduct from "./pages/survey/Product";
 import SurveyAll from "./pages/survey/SurveyAll";
+import SurveyHistory from "./pages/survey/History";
 import MockHost from "./pages/mock/MockHost";
 
 const routes = [
@@ -28,6 +29,7 @@ const routes = [
           { path: "survey/label", element: <SurveyLabel /> },
           { path: "survey/asset", element: <SurveyAsset /> },
           { path: "survey/product", element: <SurveyProduct /> },
+          { path: "survey/history", element: <SurveyHistory /> },
         ],
       },
     ],

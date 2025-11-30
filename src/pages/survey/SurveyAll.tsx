@@ -1439,7 +1439,7 @@ export default function SurveyAllPage() {
           <br />
           入力へ
         </button>
-        <button type="button" className="ghost" onClick={() => setHistoryOpen(true)}>
+        <button type="button" className="ghost" onClick={() => navigate("/survey/history")}>
           履歴
           <br />
           表示
